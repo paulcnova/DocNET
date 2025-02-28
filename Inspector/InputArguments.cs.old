@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 using System.Collections.Generic;
 
@@ -56,7 +56,9 @@ public class InputArguments
 		
 		if(input.Output == null)
 		{
-			input.Output = (input.IsList ? "listTypes.json" : "type.json");
+			input.Output = input.IsList
+				? "listTypes.json"
+				: "type.json";
 		}
 		input.IsHelp = (input.IsHelp || (!input.IsList && input.TypePath == ""));
 		if(input.IsList && input.TypePath != "")

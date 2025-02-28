@@ -1,14 +1,14 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-using Taco.DocNET.Utilities;
+using DocNET.Utilities;
 
 /// <summary>A class that holds the format of the XML content</summary>
-public class XmlFormat
+public partial class XmlFormat
 {
 	#region Properties
 	
@@ -36,10 +36,29 @@ public class XmlFormat
 	/// <summary>Gets the list of names and descriptions of the type parameters documentation</summary>
 	public List<NameDescription> TypeParameters { get; private set; } = new List<NameDescription>();
 	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"`+\d+")]
+	private static partial Regex GenericNotationRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"((?:[a-zA-Z0-9`]+[\.\/]?)*)[\.\/](.*)|([a-zA-Z0-9`]+)")]
+	private static partial Regex TypeRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"(.):((?:[a-zA-Z0-9`]+[\.\/]?)*).*")]
+	private static partial Regex CrefRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"^[ ]{12}", RegexOptions.Multiline)]
+	private static partial Regex TrimWhitespaceRegex();
+	
 	#endregion // Properties
 	
 	#region Public Methods
 	
+	/// <summary>Generates an xml format class from a given xml element found in the generated docs.</summary>
+	/// <param name="member">The xml node for the member to generate the xml format for.</param>
+	/// <returns>Returns the formatted xml needed to generate docs with.</returns>
 	public static XmlFormat Generate(XmlElement member)
 	{
 		XmlFormat format = new XmlFormat();
@@ -64,7 +83,7 @@ public class XmlFormat
 	
 	private static List<NameDescription> GatherNameDescriptionList(XmlNodeList members, string attrName)
 	{
-		List<NameDescription> list = new List<NameDescription>();
+		List<NameDescription> list = [];
 		
 		foreach(XmlElement member in members)
 		{
@@ -93,7 +112,7 @@ public class XmlFormat
 	
 	private static string TrimTextContent(string content)
 	{
-		string results = Regex.Replace(content, @"^[ ]{12}", "", RegexOptions.Multiline).Trim();
+		string results = TrimWhitespaceRegex().Replace(content, "").Trim();
 		
 		if(results != "" && !(
 			results.EndsWith('.')
@@ -139,28 +158,25 @@ public class XmlFormat
 						}
 						else if(element.HasAttribute("cref"))
 						{
-							Match match = Regex.Match(
-								element.Attributes["cref"].Value,
-								@"(.):((?:[a-zA-Z0-9`]+[\.\/]?)*).*"
-							);
+							Match match = CrefRegex().Match(element.Attributes["cref"].Value);
 							
 							if(!match.Success) { break; }
 							
-							Match typeMatch = Regex.Match(
-								match.Groups[2].Value,
-								@"((?:[a-zA-Z0-9`]+[\.\/]?)*)[\.\/](.*)|([a-zA-Z0-9`]+)"
-							);
+							Match typeMatch = TypeRegex().Match(match.Groups[2].Value);
 							
 							if(!typeMatch.Success) { break; }
 							
-							string link = typeMatch.Groups[1].Value.StartsWith("System")
-								? Utility.CreateSystemLink(match.Groups[2].Value.Replace('`', '-').Replace('/', '.'))
-								: Utility.CreateInternalLink(typeMatch.Groups[match.Groups[1].Value == "T" ? 0 : 1].Value);
+							bool isSystem = typeMatch.Groups[1].Value.StartsWith("System");
+							string link = isSystem
+								? match.Groups[2].Value.Replace('`', '-').Replace('/', '.')
+								: typeMatch.Groups[match.Groups[1].Value == "T" ? 0 : 1].Value;
 							string name = !typeMatch.Groups[1].Success
 								? typeMatch.Groups[0].Value
-								: Regex.Replace(typeMatch.Groups[2].Value, @"`+\d+", "");
+								: GenericNotationRegex().Replace(typeMatch.Groups[2].Value, "");
 							
-							content += $@"<a href=""{link}"">{name}</a>";
+							content += isSystem
+								? Utility.CreateSystemLink(link, name)
+								: Utility.CreateInternalLink(link, name);
 						}
 						break;
 				}

@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>All the information relevant to methods</summary>
-public class MethodInfo : BaseInfo
+public partial class MethodInfo : BaseInfo
 {
 	#region Properties
 	
@@ -61,6 +61,14 @@ public class MethodInfo : BaseInfo
 	private bool IsProperty { get; set; }
 	// Tells if the method is an event, used to remove it when it's irrelevant
 	private bool IsEvent { get; set; }
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"(.*)\..*$")]
+	public static partial Regex NamespaceNameRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"[a-zA-Z0-9]+((?:\[,*\])+)")]
+	public static partial Regex ArrayRegex();
 	
 	#endregion // Properties
 	
@@ -186,7 +194,7 @@ public class MethodInfo : BaseInfo
 			temp.Name = QuickTypeInfo.DeleteNamespaceFromType(QuickTypeInfo.MakeNameFriendly(temp.FullName));
 			if(temp.UnlocalizedName.Contains('.'))
 			{
-				temp.NamespaceName = Regex.Replace(temp.UnlocalizedName, @"(.*)\..*$", "$1");
+				temp.NamespaceName = NamespaceNameRegex().Replace(temp.UnlocalizedName, "$1");
 			}
 			else
 			{
@@ -258,7 +266,7 @@ public class MethodInfo : BaseInfo
 			}
 			if(info.UnlocalizedName.Contains('.'))
 			{
-				info.NamespaceName = Regex.Replace(info.UnlocalizedName, @"(.*)\..*$", "$1");
+				info.NamespaceName = NamespaceNameRegex().Replace(info.UnlocalizedName, "$1");
 			}
 			else
 			{
@@ -296,11 +304,8 @@ public class MethodInfo : BaseInfo
 		
 		if(info.FullName == info.Name)
 		{
-			string arrayPattern = $@"[a-zA-Z0-9]+((?:\[,*\])+)";
-			
-			info.FullName = Regex.Replace(
+			info.FullName = ArrayRegex().Replace(
 				info.FullName,
-				arrayPattern,
 				$"{ info.UnlocalizedName }$1"
 			);
 		}

@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 using Newtonsoft.Json;
 

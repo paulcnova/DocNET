@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 /// <summary>A class that holds a name and description</summary>
 public class NameDescription

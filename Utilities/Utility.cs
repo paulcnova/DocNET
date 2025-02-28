@@ -17,6 +17,8 @@ public static class Utility
 		.UsePrism()
 		.Build();
 	
+	public static IUtilitySet UtilitySet { get; set; } = new HtmlUtilitySet();
+	
 	/// <summary>Gets the absolute path this program's place in the user's `APPDATA` folder</summary>
 	public static string AppDataPath => Path.Combine(GetAppDataPath(), "DocNET");
 	
@@ -27,8 +29,10 @@ public static class Utility
 	
 	#region Public Methods
 	
-	public static string CreateSystemLink(string typePath) => "";
-	public static string CreateInternalLink(string typePath) => "";
+	/// <inheritdoc cref="IUtilitySet.CreateSystemLink(string, string)"/>
+	public static string CreateSystemLink(string typePath, string linkName) => UtilitySet?.CreateSystemLink(typePath, linkName) ?? "";
+	/// <inheritdoc cref="IUtilitySet.CreateInternalLink(string, string)"/>
+	public static string CreateInternalLink(string typePath, string linkName) => UtilitySet?.CreateInternalLink(typePath, linkName) ?? "";
 	
 	/// <summary>Renders the given markdown</summary>
 	/// <param name="markdown">The markdown content to render</param>
@@ -50,6 +54,7 @@ public static class Utility
 	/// <param name="content">The content to write</param>
 	public static void Write(string path, string content)
 	{
+		EnsurePath(path);
 		if(File.Exists(path))
 		{
 			File.Delete(path);

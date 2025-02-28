@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 /// <summary>The base information used for other info inspector types</summary>
 public abstract class BaseInfo : System.IComparable

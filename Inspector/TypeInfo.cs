@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>All the information relevant to types</summary>
-public class TypeInfo
+public partial class TypeInfo
 {
 	#region Properties
 	
@@ -76,6 +76,10 @@ public class TypeInfo
 	public MethodInfo[] StaticMethods { get; set; }
 	/// <summary>The array of operators that the type contains</summary>
 	public MethodInfo[] Operators { get; set; }
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"\u0060\d+")]
+	public static partial Regex RemoveUnlocalizedGenericParametersRegex();
 	
 	#endregion // Properties
 	
@@ -336,7 +340,7 @@ public class TypeInfo
 		}
 		
 		int index = 0;
-		string newName = Regex.Replace(name, @"\u0060(\d+)", match => {
+		string newName = RemoveUnlocalizedGenericParametersRegex().Replace(name, match => {
 			int count;
 			string result = "";
 			

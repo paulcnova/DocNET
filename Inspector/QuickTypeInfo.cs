@@ -1,5 +1,5 @@
 
-namespace Taco.DocNET.Inspector;
+namespace DocNET.Inspector;
 
 using Mono.Cecil;
 
@@ -7,12 +7,10 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>A quick look into the information of the type</summary>
-public class QuickTypeInfo
+public partial class QuickTypeInfo
 {
 	#region Properties
 	
-	// The pattern for removing the unlocalized generic parameters
-	private const string Pattern = @"\u0060\d+";
 	// The hash map of the changes from the managed types to primitives to make it easier to read for type
 	private static readonly Dictionary<string, string> Changes = new Dictionary<string, string>(new KeyValuePair<string, string>[] {
 		new KeyValuePair<string, string>("System.Boolean", "bool"),
@@ -61,6 +59,22 @@ public class QuickTypeInfo
 	public GenericParametersInfo[] GenericParameters { get; set; }
 	/// <summary>Set to true if the type is a generic type</summary>
 	public bool IsGenericType { get; set; }
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"([a-zA-Z0-9]+\.)+")]
+	public static partial Regex NamespaceRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@",(\w)")]
+	public static partial Regex TypeRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"(.*)\..*$")]
+	public static partial Regex UnlocalizedNameRegex();
+	
+	// TODO: Centralize this into a helper class.
+	[GeneratedRegex(@"\u0060\d+")]
+	public static partial Regex RemoveUnlocalizedGenericParametersRegex();
 	
 	#endregion // Properties
 	
@@ -149,9 +163,7 @@ public class QuickTypeInfo
 	/// <returns>Returns a string with any namespaces being removed</returns>
 	public static string DeleteNamespaceFromType(string name)
 	{
-		const string pattern = @"([a-zA-Z0-9]+\.)+";
-		
-		return Regex.Replace(Regex.Replace(name, pattern, ""), @",(\w)", ", $1");
+		return TypeRegex().Replace(NamespaceRegex().Replace(name, ""), ", $1");
 	}
 	
 	/// <summary>Gets the list of generic parameter names from the full name of the type</summary>
@@ -203,7 +215,8 @@ public class QuickTypeInfo
 			else if(fullName[i] == ',' && scope == 0)
 			{
 				info = new GenericParametersInfo();
-				info.Name = Regex.Replace(fullName.Substring(curr, i - curr), Pattern, "");
+				info.Name = RemoveUnlocalizedGenericParametersRegex()
+					.Replace(fullName.Substring(curr, i - curr), "");
 				info.UnlocalizedName = GenericParametersInfo.UnlocalizeName(info.Name);
 				info.Name = MakeNameFriendly(info.Name);
 				info.Constraints = new QuickTypeInfo[0];
@@ -213,7 +226,8 @@ public class QuickTypeInfo
 		}
 		
 		info = new GenericParametersInfo();
-		info.Name = Regex.Replace(fullName.Substring(curr, gt - curr), Pattern, "");
+		info.Name = RemoveUnlocalizedGenericParametersRegex()
+			.Replace(fullName.Substring(curr, gt - curr), "");
 		info.UnlocalizedName = GenericParametersInfo.UnlocalizeName(info.Name);
 		info.Name = MakeNameFriendly(info.Name);
 		info.Constraints = new QuickTypeInfo[0];
@@ -247,14 +261,15 @@ public class QuickTypeInfo
 		int index = typeFullName.IndexOf('<');
 		
 		unlocalizedName = (index == -1 ? typeFullName : typeFullName.Substring(0, index)).Replace("[]", "");
-		fullName = Regex.Replace(TypeInfo.LocalizeName(typeFullName, generics), Pattern, "");
+		fullName = RemoveUnlocalizedGenericParametersRegex()
+			.Replace(TypeInfo.LocalizeName(typeFullName, generics), "");
 		name = DeleteNamespaceFromType(MakeNameFriendly(fullName));
 		name = name.Replace("/", ".");
 		fullName = fullName.Replace("/", ".");
 		nonInstancedFullName = fullName;
 		if(unlocalizedName.Contains('.'))
 		{
-			namespaceName = Regex.Replace(unlocalizedName, @"(.*)\..*$", "$1");
+			namespaceName = UnlocalizedNameRegex().Replace(unlocalizedName, "$1");
 		}
 		else
 		{

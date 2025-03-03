@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -7,7 +7,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to fields</summary>
-public class FieldInfo : BaseInfo
+public class FieldInspection : BaseInspection
 {
 	#region Properties
 	
@@ -22,15 +22,15 @@ public class FieldInfo : BaseInfo
 	/// <summary>Gets and sets if the field is readonly</summary>
 	public bool IsReadonly { get; set; }
 	/// <summary>Gets and sets the list of attributes that the field contains</summary>
-	public AttributeInfo[] Attributes { get; set; }
+	public AttributeInspection[] Attributes { get; set; }
 	/// <summary>Gets and sets the accessor of the field (such as internal, private, protected, public)</summary>
 	public string Accessor { get; set; }
 	/// <summary>Gets and sets any modifiers to the field (such as static, const, static readonly, etc)</summary>
 	public string Modifier { get; set; }
 	/// <summary>Gets and sets the type information of the field's type</summary>
-	public QuickTypeInfo TypeInfo { get; set; }
+	public QuickTypeInspection TypeInfo { get; set; }
 	/// <summary>Gets and sets the type the field is implemented in</summary>
-	public QuickTypeInfo ImplementedType { get; set; }
+	public QuickTypeInspection ImplementedType { get; set; }
 	/// <summary>Gets and sets the declaration of the field as it is found within the code</summary>
 	public string FullDeclaration { get; set; }
 	/// <summary>If it's true then the info should not be printed out and should be deleted</summary>
@@ -51,19 +51,19 @@ public class FieldInfo : BaseInfo
 	/// </param>
 	/// <param name="isStatic">Set to true to look for only static members</param>
 	/// <returns>Returns the list of field informations</returns>
-	public static FieldInfo[] GenerateInfoArray(TypeDefinition type, bool recursive, bool isStatic)
+	public static FieldInspection[] GenerateInfoArray(TypeDefinition type, bool recursive, bool isStatic)
 	{
 		if(!recursive)
 		{
-			FieldInfo[] results = GenerateInfoArray(type.Fields);
+			FieldInspection[] results = GenerateInfoArray(type.Fields);
 			
 			RemoveUnwanted(ref results, isStatic, true);
 			
 			return results;
 		}
 		
-		List<FieldInfo> methods = new List<FieldInfo>();
-		FieldInfo[] temp;
+		List<FieldInspection> methods = new List<FieldInspection>();
+		FieldInspection[] temp;
 		TypeDefinition currType = type;
 		TypeReference baseType;
 		bool isOriginal = true;
@@ -92,10 +92,10 @@ public class FieldInfo : BaseInfo
 	/// <summary>Generates an array of field informations from a collection of field definitions</summary>
 	/// <param name="fields">The field definition to look into</param>
 	/// <returns>Returns the list of field informations</returns>
-	public static FieldInfo[] GenerateInfoArray(Collection<FieldDefinition> fields)
+	public static FieldInspection[] GenerateInfoArray(Collection<FieldDefinition> fields)
 	{
-		List<FieldInfo> results = new List<FieldInfo>();
-		FieldInfo info;
+		List<FieldInspection> results = new List<FieldInspection>();
+		FieldInspection info;
 		
 		foreach(FieldDefinition field in fields)
 		{
@@ -121,28 +121,28 @@ public class FieldInfo : BaseInfo
 	/// <summary>Generates the information for the field from the field definition</summary>
 	/// <param name="field">The field definition to look into</param>
 	/// <returns>Returns the information of the field</returns>
-	public static FieldInfo GenerateInfo(FieldDefinition field)
+	public static FieldInspection GenerateInfo(FieldDefinition field)
 	{
-		FieldInfo info = new FieldInfo();
+		FieldInspection info = new FieldInspection();
 		string val = System.Text.ASCIIEncoding.ASCII.GetString(field.InitialValue);
 		
 		if(field.IsAssembly) { info.Accessor = "internal"; }
 		else if(field.IsFamily) { info.Accessor = "protected"; }
 		else if(field.IsPrivate) { info.Accessor = "private"; }
 		else { info.Accessor = "public"; }
-		if(Inspector.TypeInfo.ignorePrivate && PropertyInfo.GetAccessorId(info.Accessor) == 0)
+		if(Inspections.TypeInspection.ignorePrivate && PropertyInspection.GetAccessorId(info.Accessor) == 0)
 		{
 			info.shouldDelete = true;
 			return info;
 		}
 		info.Name = field.Name;
-		info.TypeInfo = QuickTypeInfo.GenerateInfo(field.FieldType);
-		info.ImplementedType = QuickTypeInfo.GenerateInfo(field.DeclaringType);
+		info.TypeInfo = QuickTypeInspection.GenerateInfo(field.FieldType);
+		info.ImplementedType = QuickTypeInspection.GenerateInfo(field.DeclaringType);
 		info.Value = $"{ field.Constant ?? val }";
 		info.IsConstant = field.HasConstant;
 		info.IsStatic = field.IsStatic;
 		info.IsReadonly = field.IsInitOnly;
-		info.Attributes = AttributeInfo.GenerateInfoArray(field.CustomAttributes);
+		info.Attributes = AttributeInspection.GenerateInfoArray(field.CustomAttributes);
 		if(field.HasConstant) { info.Modifier = "const"; }
 		else if(field.IsStatic && field.IsInitOnly) { info.Modifier = "static readonly"; }
 		else if(field.IsStatic) { info.Modifier = "static"; }
@@ -189,9 +189,9 @@ public class FieldInfo : BaseInfo
 	/// <param name="temp">The list of field informations to look into</param>
 	/// <param name="isStatic">Set to true to remove any non-static members</param>
 	/// <param name="isOriginal">Set to false if it's a base type, this will remove any private members</param>
-	private static void RemoveUnwanted(ref FieldInfo[] temp, bool isStatic, bool isOriginal)
+	private static void RemoveUnwanted(ref FieldInspection[] temp, bool isStatic, bool isOriginal)
 	{
-		List<FieldInfo> fields = new List<FieldInfo>(temp);
+		List<FieldInspection> fields = new List<FieldInspection>(temp);
 		
 		for(int i = temp.Length - 1; i >= 0; i--)
 		{
@@ -215,13 +215,13 @@ public class FieldInfo : BaseInfo
 	/// <summary>Removes any duplicates within the list</summary>
 	/// <param name="temp">The list of field informations to remove duplicates from</param>
 	/// <param name="listFields">The list of fields that have already been recorded</param>
-	private static void RemoveDuplicates(ref FieldInfo[] temp, List<FieldInfo> listFields)
+	private static void RemoveDuplicates(ref FieldInspection[] temp, List<FieldInspection> listFields)
 	{
-		List<FieldInfo> fields = new List<FieldInfo>(temp);
+		List<FieldInspection> fields = new List<FieldInspection>(temp);
 		
 		for(int i = temp.Length - 1; i >= 0; i--)
 		{
-			foreach(FieldInfo field in listFields)
+			foreach(FieldInspection field in listFields)
 			{
 				if(fields[i].Name == field.Name)
 				{

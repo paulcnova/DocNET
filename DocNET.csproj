@@ -7,12 +7,8 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Handlebars.Net" Version="2.1.4" />
-    <PackageReference Include="Markdig" Version="0.33.0" />
-    <PackageReference Include="Mono.Cecil" Version="0.11.5" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Console" Version="4.3.1" />
-    <PackageReference Include="WebStoating.Markdig.Prism" Version="1.0.0" />
     <Compile Remove="Source/**/*.cs"/>
   </ItemGroup>
   <Target Name="TEMP" AfterTargets="Build">

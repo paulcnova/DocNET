@@ -2,6 +2,7 @@
 namespace DocNET;
 
 using System.Collections.Generic;
+using System.IO;
 
 /// <summary>A static class where the program starts from</summary>
 public static class Program
@@ -42,20 +43,24 @@ public static class Program
 		System.Console.WriteLine($"Output: {output}; Template: {template}");
 	}
 	
+	/// <summary>Gets the list of templates available for DocNET</summary>
+	/// <returns>Returns a list of strings that name each template available</returns>
 	public static List<string> GetTemplates()
 	{
 		// TODO: Get user created templates from %APPDATA%
-		List<string> templates = [
+		List<string> templates = new List<string>()
+		{
 			"html",
 			"react",
 			"angular",
 			"vue",
-			"godot",
-		];
+			"godot"
+		};
 		
 		return templates;
 	}
 	
+	/// <summary>Lists the templates onto the logger</summary>
 	public static void ListTemplates()
 	{
 		List<string> templates = GetTemplates();
@@ -67,15 +72,15 @@ public static class Program
 		}
 	}
 	
+	/// <summary>Displays the help menu onto the logger</summary>
 	public static void DisplayHelp()
 	{
-		System.Console.WriteLine("Use: DocNET [command-options] [arguments]");
-		System.Console.WriteLine("command-options:");
+		System.Console.WriteLine("Use: DocNET [options] [arguments]");
+		System.Console.WriteLine("Options:");
 		System.Console.WriteLine("--help (-h)                        Displays the help menu.");
-		System.Console.WriteLine("--list-templates                   Lists all the templates available.");
 		System.Console.WriteLine("--out <output_file> (-o)           The file to be outputted.");
 		System.Console.WriteLine("--template <template_name> (-t)    The template to convert the documents into.");
+		System.Console.WriteLine("--list-templates                   Lists all the templates available.");
 	}
-	
 	#endregion // Public Methods
 }

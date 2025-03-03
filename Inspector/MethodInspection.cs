@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>All the information relevant to methods</summary>
-public partial class MethodInfo : BaseInfo
+public partial class MethodInspection : BaseInspection
 {
 	#region Properties
 	
@@ -40,15 +40,15 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Set to true if the method is virtual</summary>
 	public bool IsVirtual { get; set; }
 	/// <summary>The type that the method is implemented in</summary>
-	public QuickTypeInfo ImplementedType { get; set; }
+	public QuickTypeInspection ImplementedType { get; set; }
 	/// <summary>The type that the method returns</summary>
-	public QuickTypeInfo ReturnType { get; set; }
+	public QuickTypeInspection ReturnType { get; set; }
 	/// <summary>The attributes of the methods</summary>
-	public AttributeInfo[] Attributes { get; set; }
+	public AttributeInspection[] Attributes { get; set; }
 	/// <summary>The parameters that the methods contains</summary>
-	public ParameterInfo[] Parameters { get; set; }
+	public ParameterInspection[] Parameters { get; set; }
 	/// <summary>The generic parameters that the method uses</summary>
-	public GenericParametersInfo[] GenericParameters { get; set; }
+	public GenericParametersInspection[] GenericParameters { get; set; }
 	/// <summary>The partial declaration of the method (without parameters) that can be found in the code</summary>
 	public string Declaration { get; set; }
 	/// <summary>The partial declaration of the generics that can be found in the code</summary>
@@ -62,14 +62,6 @@ public partial class MethodInfo : BaseInfo
 	// Tells if the method is an event, used to remove it when it's irrelevant
 	private bool IsEvent { get; set; }
 	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"(.*)\..*$")]
-	public static partial Regex NamespaceNameRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"[a-zA-Z0-9]+((?:\[,*\])+)")]
-	public static partial Regex ArrayRegex();
-	
 	#endregion // Properties
 	
 	#region Public Methods
@@ -81,22 +73,22 @@ public partial class MethodInfo : BaseInfo
 	/// <param name="isConstructor">Set to true to generate only constructors. Defaults to false</param>
 	/// <param name="isOperator">Set to true to generate only operators. Defaults to false</param>
 	/// <returns>Returns an array of method informations</returns>
-	public static MethodInfo[] GenerateInfoArray(
+	public static MethodInspection[] GenerateInfoArray(
 		TypeDefinition type, bool recursive, bool isStatic,
 		bool isConstructor = false, bool isOperator = false
 	)
 	{
 		if(!recursive)
 		{
-			MethodInfo[] results = GenerateInfoArray(type.Methods);
+			MethodInspection[] results = GenerateInfoArray(type.Methods);
 			
 			RemoveUnwanted(ref results, isStatic, isConstructor, isOperator, true);
 			
 			return results;
 		}
 		
-		List<MethodInfo> methods = new List<MethodInfo>();
-		MethodInfo[] temp;
+		List<MethodInspection> methods = new List<MethodInspection>();
+		MethodInspection[] temp;
 		TypeDefinition currType = type;
 		TypeReference currTypeRef = type.Resolve();
 		TypeReference baseType;
@@ -129,13 +121,13 @@ public partial class MethodInfo : BaseInfo
 	/// <param name="currTypeRef">The current (base) type reference to look into</param>
 	/// <param name="methods">The collections of methods to look into</param>
 	/// <returns>Returns an array of method informations</returns>
-	public static MethodInfo[] GenerateInfoArray(
+	public static MethodInspection[] GenerateInfoArray(
 		TypeDefinition type, TypeDefinition currType,
 		TypeReference currTypeRef, Collection<MethodDefinition> methods
 	)
 	{
-		List<MethodInfo> results = new List<MethodInfo>();
-		MethodInfo info;
+		List<MethodInspection> results = new List<MethodInspection>();
+		MethodInspection info;
 		
 		foreach(MethodDefinition method in methods)
 		{
@@ -155,7 +147,7 @@ public partial class MethodInfo : BaseInfo
 	/// <param name="currTypeRef">The current (base) type reference to look into</param>
 	/// <param name="method">The method to look into</param>
 	/// <returns>Returns the method information</returns>
-	public static MethodInfo GetGenericMethodInfo(
+	public static MethodInspection GetGenericMethodInfo(
 		TypeDefinition type, TypeDefinition currType,
 		TypeReference currTypeRef, MethodDefinition method
 	)
@@ -177,24 +169,24 @@ public partial class MethodInfo : BaseInfo
 	/// <param name="method">The method to look into</param>
 	/// <param name="methodRef">The method reference to look into</param>
 	/// <returns>Returns the information into the method</returns>
-	public static MethodInfo GenerateInfo(MethodDefinition method, MethodReference methodRef)
+	public static MethodInspection GenerateInfo(MethodDefinition method, MethodReference methodRef)
 	{
-		QuickTypeInfo nInfo = QuickTypeInfo.GenerateInfo(methodRef.DeclaringType);
-		MethodInfo info = GenerateInfo(method);
-		Dictionary<string, QuickTypeInfo> hash = new Dictionary<string, QuickTypeInfo>();
+		QuickTypeInspection nInfo = QuickTypeInspection.GenerateInfo(methodRef.DeclaringType);
+		MethodInspection info = GenerateInfo(method);
+		Dictionary<string, QuickTypeInspection> hash = new Dictionary<string, QuickTypeInspection>();
 		bool isGeneric = false;
 		int i = 0;
 		
-		foreach(GenericParametersInfo generic in info.ImplementedType.GenericParameters)
+		foreach(GenericParametersInspection generic in info.ImplementedType.GenericParameters)
 		{
-			QuickTypeInfo temp = new QuickTypeInfo();
+			QuickTypeInspection temp = new QuickTypeInspection();
 			
 			temp.UnlocalizedName = nInfo.GenericParameters[i].UnlocalizedName;
 			temp.FullName = nInfo.GenericParameters[i].Name;
-			temp.Name = QuickTypeInfo.DeleteNamespaceFromType(QuickTypeInfo.MakeNameFriendly(temp.FullName));
+			temp.Name = QuickTypeInspection.DeleteNamespaceFromType(QuickTypeInspection.MakeNameFriendly(temp.FullName));
 			if(temp.UnlocalizedName.Contains('.'))
 			{
-				temp.NamespaceName = NamespaceNameRegex().Replace(temp.UnlocalizedName, "$1");
+				temp.NamespaceName = InspectionRegex.NamespaceName().Replace(temp.UnlocalizedName, "$1");
 			}
 			else
 			{
@@ -204,21 +196,21 @@ public partial class MethodInfo : BaseInfo
 			hash.Add(generic.Name, temp);
 			i++;
 		}
-		foreach(ParameterInfo parameter in info.Parameters)
+		foreach(ParameterInspection parameter in info.Parameters)
 		{
 			parameter.TypeInfo = GetGenericInstanceTypeInfo(hash, parameter.TypeInfo, nInfo, out isGeneric);
 			if(isGeneric)
 			{
-				parameter.TypeInfo.GenericParameters = GenericParametersInfo.GenerateInfoArray(methodRef.Resolve().DeclaringType.GenericParameters);
-				parameter.GenericParameterDeclarations = QuickTypeInfo.GetGenericParametersAsStrings(parameter.TypeInfo.FullName);
-				parameter.FullDeclaration = ParameterInfo.GetFullDeclaration(parameter);
+				parameter.TypeInfo.GenericParameters = GenericParametersInspection.GenerateInfoArray(methodRef.Resolve().DeclaringType.GenericParameters);
+				parameter.GenericParameterDeclarations = QuickTypeInspection.GetGenericParametersAsStrings(parameter.TypeInfo.FullName);
+				parameter.FullDeclaration = ParameterInspection.GetFullDeclaration(parameter);
 			}
 		}
 		
 		info.ReturnType = GetGenericInstanceTypeInfo(
 			hash,
 			info.ReturnType,
-			QuickTypeInfo.GenerateInfo(methodRef.ReturnType),
+			QuickTypeInspection.GenerateInfo(methodRef.ReturnType),
 			out isGeneric
 		);
 		
@@ -238,7 +230,7 @@ public partial class MethodInfo : BaseInfo
 			info.ParameterDeclaration = $"this {info.ParameterDeclaration}";
 		}
 		info.FullDeclaration = $"{info.Declaration}{info.GenericDeclaration}({info.ParameterDeclaration})";
-		info.FullDeclaration += TypeInfo.GetGenericParameterConstraints(info.GenericParameters);
+		info.FullDeclaration += TypeInspection.GetGenericParameterConstraints(info.GenericParameters);
 		
 		return info;
 	}
@@ -249,9 +241,9 @@ public partial class MethodInfo : BaseInfo
 	/// <param name="nInfo">The information of the type to look into, should be generic instanced</param>
 	/// <param name="isGeneric">Set to true if anything was changed by this method</param>
 	/// <returns>Returns a quick look into the typing</returns>
-	public static QuickTypeInfo GetGenericInstanceTypeInfo(
-		Dictionary<string, QuickTypeInfo> hash, QuickTypeInfo info,
-		QuickTypeInfo nInfo, out bool isGeneric
+	public static QuickTypeInspection GetGenericInstanceTypeInfo(
+		Dictionary<string, QuickTypeInspection> hash, QuickTypeInspection info,
+		QuickTypeInspection nInfo, out bool isGeneric
 	)
 	{
 		isGeneric = false;
@@ -266,7 +258,7 @@ public partial class MethodInfo : BaseInfo
 			}
 			if(info.UnlocalizedName.Contains('.'))
 			{
-				info.NamespaceName = NamespaceNameRegex().Replace(info.UnlocalizedName, "$1");
+				info.NamespaceName = InspectionRegex.NamespaceName().Replace(info.UnlocalizedName, "$1");
 			}
 			else
 			{
@@ -297,14 +289,14 @@ public partial class MethodInfo : BaseInfo
 		
 		if(isGeneric)
 		{
-			info.Name = QuickTypeInfo.DeleteNamespaceFromType(
-				QuickTypeInfo.MakeNameFriendly(info.FullName)
+			info.Name = QuickTypeInspection.DeleteNamespaceFromType(
+				QuickTypeInspection.MakeNameFriendly(info.FullName)
 			);
 		}
 		
 		if(info.FullName == info.Name)
 		{
-			info.FullName = ArrayRegex().Replace(
+			info.FullName = InspectionRegex.Array().Replace(
 				info.FullName,
 				$"{ info.UnlocalizedName }$1"
 			);
@@ -317,10 +309,10 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Generates an array of method informations from the given collection of method definitions</summary>
 	/// <param name="methods">The collection of methods to look into</param>
 	/// <returns>Returns an array of method informations</returns>
-	public static MethodInfo[] GenerateInfoArray(Collection<MethodDefinition> methods)
+	public static MethodInspection[] GenerateInfoArray(Collection<MethodDefinition> methods)
 	{
-		List<MethodInfo> results = new List<MethodInfo>();
-		MethodInfo info;
+		List<MethodInspection> results = new List<MethodInspection>();
+		MethodInspection info;
 		
 		foreach(MethodDefinition method in methods)
 		{
@@ -337,9 +329,9 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Generates the method information from the given method definition</summary>
 	/// <param name="method">The method definition to look into</param>
 	/// <returns>Returns the method information</returns>
-	public static MethodInfo GenerateInfo(MethodDefinition method)
+	public static MethodInspection GenerateInfo(MethodDefinition method)
 	{
-		MethodInfo info = new MethodInfo();
+		MethodInspection info = new MethodInspection();
 		int index;
 		
 		info.IsStatic = method.IsStatic;
@@ -356,8 +348,8 @@ public partial class MethodInfo : BaseInfo
 			method.Name == "op_Explicit" ||
 			method.Name == "op_Implicit"
 		);
-		info.ImplementedType = QuickTypeInfo.GenerateInfo(method.DeclaringType);
-		info.ReturnType = QuickTypeInfo.GenerateInfo(method.ReturnType);
+		info.ImplementedType = QuickTypeInspection.GenerateInfo(method.DeclaringType);
+		info.ReturnType = QuickTypeInspection.GenerateInfo(method.ReturnType);
 		if(info.IsConstructor)
 		{
 			info.Name = info.ImplementedType.Name;
@@ -384,9 +376,9 @@ public partial class MethodInfo : BaseInfo
 		{
 			info.partialFullName = info.Name;
 		}
-		info.Parameters = ParameterInfo.GenerateInfoArray(method.Parameters);
-		info.GenericParameters = GenericParametersInfo.GenerateInfoArray(method.GenericParameters);
-		info.Attributes = AttributeInfo.GenerateInfoArray(method.CustomAttributes);
+		info.Parameters = ParameterInspection.GenerateInfoArray(method.Parameters);
+		info.GenericParameters = GenericParametersInspection.GenerateInfoArray(method.GenericParameters);
+		info.Attributes = AttributeInspection.GenerateInfoArray(method.CustomAttributes);
 		if(info.IsConversionOperator) { info.Modifier = $"static { method.Name.Substring(3).ToLower() } operator"; }
 		else if(info.IsOperator) { info.Modifier = "static operator"; }
 		else if(method.IsStatic) { info.Modifier = "static"; }
@@ -413,8 +405,8 @@ public partial class MethodInfo : BaseInfo
 			info.ParameterDeclaration = $"this { info.ParameterDeclaration }";
 		}
 		info.FullDeclaration = $"{ info.Declaration }{ info.GenericDeclaration }({ info.ParameterDeclaration })";
-		info.FullDeclaration += TypeInfo.GetGenericParameterConstraints(info.GenericParameters);
-		if(TypeInfo.ignorePrivate && PropertyInfo.GetAccessorId(info.Accessor) == 0)
+		info.FullDeclaration += TypeInspection.GetGenericParameterConstraints(info.GenericParameters);
+		if(TypeInspection.ignorePrivate && PropertyInspection.GetAccessorId(info.Accessor) == 0)
 		{
 			info.shouldDelete = true;
 		}
@@ -425,7 +417,7 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Gets the generic parameter declarations for the method</summary>
 	/// <param name="generics">The list of generics to look into</param>
 	/// <returns>Returns a list of the generic parameter declarations used</returns>
-	public static string[] GetGenericParameterDeclaration(GenericParametersInfo[] generics)
+	public static string[] GetGenericParameterDeclaration(GenericParametersInspection[] generics)
 	{
 		string[] results = new string[generics.Length];
 		
@@ -448,11 +440,11 @@ public partial class MethodInfo : BaseInfo
 	/// <param name="isOperator">Set to false if operators should be removed</param>
 	/// <param name="isOriginal">Set to false if it's a base type, this will remove any private members</param>
 	private static void RemoveUnwanted(
-		ref MethodInfo[] temp, bool isStatic,
+		ref MethodInspection[] temp, bool isStatic,
 		bool isConstructor, bool isOperator, bool isOriginal
 	)
 	{
-		List<MethodInfo> methods = new List<MethodInfo>(temp);
+		List<MethodInspection> methods = new List<MethodInspection>(temp);
 		
 		for(int i = temp.Length - 1; i >= 0; i--)
 		{
@@ -492,13 +484,13 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Removes all the duplicates from the list of methods</summary>
 	/// <param name="temp">The list of methods to remove duplicates from</param>
 	/// <param name="listMethods">The list of recursive-ordered methods to reference which ones are duplicates</param>
-	private static void RemoveDuplicates(ref MethodInfo[] temp, List<MethodInfo> listMethods)
+	private static void RemoveDuplicates(ref MethodInspection[] temp, List<MethodInspection> listMethods)
 	{
-		List<MethodInfo> methods = new List<MethodInfo>(temp);
+		List<MethodInspection> methods = new List<MethodInspection>(temp);
 		
 		for(int i = temp.Length - 1; i >= 0; i--)
 		{
-			foreach(MethodInfo method in listMethods)
+			foreach(MethodInspection method in listMethods)
 			{
 				if(methods[i].partialFullName == method.partialFullName)
 				{
@@ -514,9 +506,9 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Finds if the method is an extension</summary>
 	/// <param name="method">The method to look into</param>
 	/// <returns>Returns true if the method is an extension by having the extension attribute</returns>
-	private static bool HasExtensionAttribute(MethodInfo method)
+	private static bool HasExtensionAttribute(MethodInspection method)
 	{
-		foreach(AttributeInfo attr in method.Attributes)
+		foreach(AttributeInspection attr in method.Attributes)
 		{
 			if(attr.TypeInfo.FullName == "System.Runtime.CompilerServices.ExtensionAttribute")
 			{
@@ -530,12 +522,12 @@ public partial class MethodInfo : BaseInfo
 	/// <summary>Generates the parameter declaration from the given method</summary>
 	/// <param name="method">The method info to look into</param>
 	/// <returns>Returns an array of parameter declaration</returns>
-	private static string[] GetParameterDeclaration(MethodInfo method)
+	private static string[] GetParameterDeclaration(MethodInspection method)
 	{
 		string[] declarations = new string[method.Parameters.Length];
 		int i = 0;
 		
-		foreach(ParameterInfo parameter in method.Parameters)
+		foreach(ParameterInspection parameter in method.Parameters)
 		{
 			declarations[i++] = parameter.FullDeclaration;
 		}

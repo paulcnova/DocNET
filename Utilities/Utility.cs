@@ -1,9 +1,6 @@
 
 namespace DocNET.Utilities;
 
-using Markdig;
-using Markdig.Prism;
-
 using System.IO;
 
 /// <summary>A static class used for utility</summary>
@@ -12,10 +9,10 @@ public static class Utility
 	#region Properties
 	
 	/// <summary>The markdown pipeline used to render for prism</summary>
-	private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
-		.UseAdvancedExtensions()
-		.UsePrism()
-		.Build();
+	// private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
+	// 	.UseAdvancedExtensions()
+	// 	.UsePrism()
+	// 	.Build();
 	
 	public static IUtilitySet UtilitySet { get; set; } = new HtmlUtilitySet();
 	
@@ -37,7 +34,7 @@ public static class Utility
 	/// <summary>Renders the given markdown</summary>
 	/// <param name="markdown">The markdown content to render</param>
 	/// <returns>Returns the rendered markdown</returns>
-	public static string RenderMarkdown(string markdown) => Markdown.ToHtml(markdown, Pipeline);
+	public static string RenderMarkdown(string markdown) => markdown;//Markdown.ToHtml(markdown, Pipeline);
 	
 	/// <summary>Ensures the path by making any directories if they don't exist yet</summary>
 	/// <param name="path">The folder path to ensure it's path</param>

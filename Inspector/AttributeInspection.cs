@@ -1,16 +1,16 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
 
 /// <summary>All the information relevant to an attribute</summary>
-public class AttributeInfo
+public class AttributeInspection
 {
 	#region Properties
 	
 	/// <summary>Gets and sets the information of the type that the attribute is</summary>
-	public QuickTypeInfo TypeInfo { get; set; }
+	public QuickTypeInspection TypeInfo { get; set; }
 	/// <summary>Gets and sets the list of constructor arguments that the attribute is declaring</summary>
 	public AttributeFieldInfo[] ConstructorArgs { get; set; }
 	/// <summary>Gets and sets the list of fields and properties that the attribute is declaring</summary>
@@ -32,9 +32,9 @@ public class AttributeInfo
 	/// <returns>
 	/// Returns the array of attribute information generated from the collection of custom attributes
 	/// </returns>
-	public static AttributeInfo[] GenerateInfoArray(Collection<CustomAttribute> attrs)
+	public static AttributeInspection[] GenerateInfoArray(Collection<CustomAttribute> attrs)
 	{
-		AttributeInfo[] results = new AttributeInfo[attrs.Count];
+		AttributeInspection[] results = new AttributeInspection[attrs.Count];
 		int i = 0;
 		
 		foreach(CustomAttribute attr in attrs)
@@ -48,17 +48,17 @@ public class AttributeInfo
 	/// <summary>Generates the information for an attribute from the given Mono.Cecil custom attribute class</summary>
 	/// <param name="attr">The attribute to gather the information from</param>
 	/// <returns>Returns the attribute information generated from the custom attribute</returns>
-	public static AttributeInfo GenerateInfo(CustomAttribute attr)
+	public static AttributeInspection GenerateInfo(CustomAttribute attr)
 	{
-		AttributeInfo info = new AttributeInfo();
+		AttributeInspection info = new AttributeInspection();
 		int i = 0;
 		
-		info.TypeInfo = QuickTypeInfo.GenerateInfo(attr.AttributeType);
+		info.TypeInfo = QuickTypeInspection.GenerateInfo(attr.AttributeType);
 		info.ConstructorArgs = new AttributeFieldInfo[attr.ConstructorArguments.Count];
 		foreach(CustomAttributeArgument arg in attr.ConstructorArguments)
 		{
 			info.ConstructorArgs[i] = new AttributeFieldInfo();
-			info.ConstructorArgs[i].typeInfo = QuickTypeInfo.GenerateInfo(arg.Type);
+			info.ConstructorArgs[i].typeInfo = QuickTypeInspection.GenerateInfo(arg.Type);
 			info.ConstructorArgs[i].name = attr.Constructor.Parameters[i].Name;
 			info.ConstructorArgs[i].value = (info.ConstructorArgs[i].typeInfo.Name != "bool"
 				? $"{ arg.Value }"
@@ -74,7 +74,7 @@ public class AttributeInfo
 		foreach(CustomAttributeNamedArgument field in attr.Fields)
 		{
 			info.Properties[i] = new AttributeFieldInfo();
-			info.Properties[i].typeInfo = QuickTypeInfo.GenerateInfo(field.Argument.Type);
+			info.Properties[i].typeInfo = QuickTypeInspection.GenerateInfo(field.Argument.Type);
 			info.Properties[i].name = field.Name;
 			info.Properties[i].value = (info.Properties[i].typeInfo.Name != "bool"
 				? $"{ field.Argument.Value }"
@@ -85,7 +85,7 @@ public class AttributeInfo
 		foreach(CustomAttributeNamedArgument property in attr.Properties)
 		{
 			info.Properties[i] = new AttributeFieldInfo();
-			info.Properties[i].typeInfo = QuickTypeInfo.GenerateInfo(property.Argument.Type);
+			info.Properties[i].typeInfo = QuickTypeInspection.GenerateInfo(property.Argument.Type);
 			info.Properties[i].name = property.Name;
 			info.Properties[i].value = (info.Properties[i].typeInfo.Name != "bool"
 				? $"{ property.Argument.Value }"
@@ -110,7 +110,7 @@ public class AttributeInfo
 	/// <summary>Gets the parameter declaration string from the given info</summary>
 	/// <param name="info">The information used to retrieve the parameter declaration</param>
 	/// <returns>Returns the parameter declaration as a string</returns>
-	private static string[] GetParameterDeclaration(AttributeInfo info)
+	private static string[] GetParameterDeclaration(AttributeInspection info)
 	{
 		string[] declarations = new string[
 			info.ConstructorArgs.Length +
@@ -142,7 +142,7 @@ public class AttributeInfo
 		/// <summary>The value of the attribute field</summary>
 		public string value;
 		/// <summary>The information of the attribute field's type</summary>
-		public QuickTypeInfo typeInfo;
+		public QuickTypeInspection typeInfo;
 	}
 	
 	#endregion // Types

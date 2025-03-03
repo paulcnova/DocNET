@@ -1,6 +1,7 @@
 
 namespace DocNET.Utilities;
 
+/// <summary>A default utility set used by DocNET, utility set is meant for static html</summary>
 public class HtmlUtilitySet : IUtilitySet
 {
 	#region Public Methods

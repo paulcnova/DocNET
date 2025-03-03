@@ -1,11 +1,11 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
 
 /// <summary>All the information relevant to generic parameters</summary>
-public class GenericParametersInfo
+public class GenericParametersInspection
 {
 	#region Properties
 	
@@ -14,7 +14,7 @@ public class GenericParametersInfo
 	/// <summary>The name of the generic parameter</summary>
 	public string Name { get; set; }
 	/// <summary>The list of constraints of what type the generic parameter should be</summary>
-	public QuickTypeInfo[] Constraints { get; set; }
+	public QuickTypeInspection[] Constraints { get; set; }
 	
 	#endregion // Properties
 	
@@ -23,9 +23,9 @@ public class GenericParametersInfo
 	/// <summary>Generates an array of generic parameter informations from the given collection generic parameter</summary>
 	/// <param name="generics">The collection of generic parameters to look into</param>
 	/// <returns>Returns an array of generic parameter informations</returns>
-	public static GenericParametersInfo[] GenerateInfoArray(Collection<GenericParameter> generics)
+	public static GenericParametersInspection[] GenerateInfoArray(Collection<GenericParameter> generics)
 	{
-		GenericParametersInfo[] results = new GenericParametersInfo[generics.Count];
+		GenericParametersInspection[] results = new GenericParametersInspection[generics.Count];
 		int i = 0;
 		
 		foreach(GenericParameter generic in generics)
@@ -39,17 +39,17 @@ public class GenericParametersInfo
 	/// <summary>Generates a generic parameter information of the given generic parameter</summary>
 	/// <param name="generic">The generic parameter to look into</param>
 	/// <returns>Returns the generic parameter information</returns>
-	public static GenericParametersInfo GenerateInfo(GenericParameter generic)
+	public static GenericParametersInspection GenerateInfo(GenericParameter generic)
 	{
-		GenericParametersInfo info = new GenericParametersInfo();
+		GenericParametersInspection info = new GenericParametersInspection();
 		int i = 0;
 		
 		info.UnlocalizedName = UnlocalizeName(generic.Name);
-		info.Name = QuickTypeInfo.MakeNameFriendly(generic.Name);
-		info.Constraints = new QuickTypeInfo[generic.Constraints.Count];
+		info.Name = QuickTypeInspection.MakeNameFriendly(generic.Name);
+		info.Constraints = new QuickTypeInspection[generic.Constraints.Count];
 		foreach(GenericParameterConstraint constraint in generic.Constraints)
 		{
-			info.Constraints[i++] = QuickTypeInfo.GenerateInfo(constraint.ConstraintType);
+			info.Constraints[i++] = QuickTypeInspection.GenerateInfo(constraint.ConstraintType);
 		}
 		
 		return info;

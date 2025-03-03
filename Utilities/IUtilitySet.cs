@@ -1,6 +1,7 @@
 
 namespace DocNET.Utilities;
 
+/// <summary>An interface for a utility set to compile from XML to whatever the utility is built for.</summary>
 public interface IUtilitySet
 {
 	#region Public Methods

@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>A quick look into the information of the type</summary>
-public partial class QuickTypeInfo
+public partial class QuickTypeInspection
 {
 	#region Properties
 	
@@ -56,25 +56,9 @@ public partial class QuickTypeInfo
 	/// <summary>The name of the namespace where the type is located in</summary>
 	public string NamespaceName { get => this.namespaceName; set => this.namespaceName = value; }
 	/// <summary>The list of generic parameters that the type contains</summary>
-	public GenericParametersInfo[] GenericParameters { get; set; }
+	public GenericParametersInspection[] GenericParameters { get; set; }
 	/// <summary>Set to true if the type is a generic type</summary>
 	public bool IsGenericType { get; set; }
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"([a-zA-Z0-9]+\.)+")]
-	public static partial Regex NamespaceRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@",(\w)")]
-	public static partial Regex TypeRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"(.*)\..*$")]
-	public static partial Regex UnlocalizedNameRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"\u0060\d+")]
-	public static partial Regex RemoveUnlocalizedGenericParametersRegex();
 	
 	#endregion // Properties
 	
@@ -83,10 +67,10 @@ public partial class QuickTypeInfo
 	/// <summary>Generates the information for a quick look into the type</summary>
 	/// <param name="type">The type definition to look into</param>
 	/// <returns>Returns a quick look at the type information</returns>
-	public static QuickTypeInfo GenerateInfo(TypeDefinition type)
+	public static QuickTypeInspection GenerateInfo(TypeDefinition type)
 	{
-		QuickTypeInfo info = new QuickTypeInfo();
-		string[] generics = TypeInfo.GetGenericParametersString(
+		QuickTypeInspection info = new QuickTypeInspection();
+		string[] generics = TypeInspection.GetGenericParametersString(
 			type.GenericParameters.ToArray()
 		);
 		
@@ -100,7 +84,7 @@ public partial class QuickTypeInfo
 			out info.namespaceName,
 			out info.name
 		);
-		info.GenericParameters = GenericParametersInfo.GenerateInfoArray(type.GenericParameters);
+		info.GenericParameters = GenericParametersInspection.GenerateInfoArray(type.GenericParameters);
 		if(info.GenericParameters.Length == 0)
 		{
 			info.GenericParameters = GetGenericParameters(type.FullName);
@@ -113,10 +97,10 @@ public partial class QuickTypeInfo
 	/// <summary>Generates the information for a quick look into the type</summary>
 	/// <param name="type">The type reference to look into</param>
 	/// <returns>Returns a quick look at the type information</returns>
-	public static QuickTypeInfo GenerateInfo(TypeReference type)
+	public static QuickTypeInspection GenerateInfo(TypeReference type)
 	{
-		QuickTypeInfo info = new QuickTypeInfo();
-		string[] generics = TypeInfo.GetGenericParametersString(
+		QuickTypeInspection info = new QuickTypeInspection();
+		string[] generics = TypeInspection.GetGenericParametersString(
 			type.GenericParameters.ToArray()
 		);
 		
@@ -130,7 +114,7 @@ public partial class QuickTypeInfo
 			out info.namespaceName,
 			out info.name
 		);
-		info.GenericParameters = GenericParametersInfo.GenerateInfoArray(type.GenericParameters);
+		info.GenericParameters = GenericParametersInspection.GenerateInfoArray(type.GenericParameters);
 		if(info.GenericParameters.Length == 0)
 		{
 			info.GenericParameters = GetGenericParameters(type.FullName);
@@ -163,7 +147,7 @@ public partial class QuickTypeInfo
 	/// <returns>Returns a string with any namespaces being removed</returns>
 	public static string DeleteNamespaceFromType(string name)
 	{
-		return TypeRegex().Replace(NamespaceRegex().Replace(name, ""), ", $1");
+		return InspectionRegex.TypeFromCulture().Replace(InspectionRegex.Namespace().Replace(name, ""), ", $1");
 	}
 	
 	/// <summary>Gets the list of generic parameter names from the full name of the type</summary>
@@ -171,11 +155,11 @@ public partial class QuickTypeInfo
 	/// <returns>Returns the list of generic parameter names</returns>
 	public static string[] GetGenericParametersAsStrings(string fullName)
 	{
-		GenericParametersInfo[] infos = GetGenericParameters(fullName);
+		GenericParametersInspection[] infos = GetGenericParameters(fullName);
 		string[] results = new string[infos.Length];
 		int i = 0;
 		
-		foreach(GenericParametersInfo info in infos)
+		foreach(GenericParametersInspection info in infos)
 		{
 			results[i] = info.Name.Replace(",", ", ");
 			foreach(KeyValuePair<string, string> keyVal in Changes)
@@ -191,14 +175,14 @@ public partial class QuickTypeInfo
 	/// <summary>Gets the list of information of generic parameters from the full name of the type</summary>
 	/// <param name="fullName">The full name of the type</param>
 	/// <returns>Returns the list of information of generic parameters</returns>
-	public static GenericParametersInfo[] GetGenericParameters(string fullName)
+	public static GenericParametersInspection[] GetGenericParameters(string fullName)
 	{
 		int lt = fullName.IndexOf('<');
 		
-		if(lt == -1) { return new GenericParametersInfo[0]; }
+		if(lt == -1) { return new GenericParametersInspection[0]; }
 		
-		List<GenericParametersInfo> results = new List<GenericParametersInfo>();
-		GenericParametersInfo info;
+		List<GenericParametersInspection> results = new List<GenericParametersInspection>();
+		GenericParametersInspection info;
 		int gt = fullName.LastIndexOf('>');
 		int scope = 0;
 		int curr = lt + 1;
@@ -214,23 +198,23 @@ public partial class QuickTypeInfo
 			}
 			else if(fullName[i] == ',' && scope == 0)
 			{
-				info = new GenericParametersInfo();
-				info.Name = RemoveUnlocalizedGenericParametersRegex()
+				info = new GenericParametersInspection();
+				info.Name = InspectionRegex.GenericNotation()
 					.Replace(fullName.Substring(curr, i - curr), "");
-				info.UnlocalizedName = GenericParametersInfo.UnlocalizeName(info.Name);
+				info.UnlocalizedName = GenericParametersInspection.UnlocalizeName(info.Name);
 				info.Name = MakeNameFriendly(info.Name);
-				info.Constraints = new QuickTypeInfo[0];
+				info.Constraints = new QuickTypeInspection[0];
 				results.Add(info);
 				curr = i + 1;
 			}
 		}
 		
-		info = new GenericParametersInfo();
-		info.Name = RemoveUnlocalizedGenericParametersRegex()
+		info = new GenericParametersInspection();
+		info.Name = InspectionRegex.GenericNotation()
 			.Replace(fullName.Substring(curr, gt - curr), "");
-		info.UnlocalizedName = GenericParametersInfo.UnlocalizeName(info.Name);
+		info.UnlocalizedName = GenericParametersInspection.UnlocalizeName(info.Name);
 		info.Name = MakeNameFriendly(info.Name);
-		info.Constraints = new QuickTypeInfo[0];
+		info.Constraints = new QuickTypeInspection[0];
 		results.Add(info);
 		
 		return results.ToArray();
@@ -261,15 +245,15 @@ public partial class QuickTypeInfo
 		int index = typeFullName.IndexOf('<');
 		
 		unlocalizedName = (index == -1 ? typeFullName : typeFullName.Substring(0, index)).Replace("[]", "");
-		fullName = RemoveUnlocalizedGenericParametersRegex()
-			.Replace(TypeInfo.LocalizeName(typeFullName, generics), "");
+		fullName = InspectionRegex.GenericNotation()
+			.Replace(TypeInspection.LocalizeName(typeFullName, generics), "");
 		name = DeleteNamespaceFromType(MakeNameFriendly(fullName));
 		name = name.Replace("/", ".");
 		fullName = fullName.Replace("/", ".");
 		nonInstancedFullName = fullName;
 		if(unlocalizedName.Contains('.'))
 		{
-			namespaceName = UnlocalizedNameRegex().Replace(unlocalizedName, "$1");
+			namespaceName = InspectionRegex.NamespaceName().Replace(unlocalizedName, "$1");
 		}
 		else
 		{

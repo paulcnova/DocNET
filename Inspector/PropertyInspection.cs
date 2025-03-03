@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -7,7 +7,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to the property</summary>
-public class PropertyInfo : BaseInfo
+public class PropertyInspection : BaseInspection
 {
 	#region Properties
 	
@@ -27,21 +27,21 @@ public class PropertyInfo : BaseInfo
 	/// <summary>Set to true if the property has a setter method</summary>
 	public bool HasSetter { get; set; }
 	/// <summary>The list of attributes associated with the property</summary>
-	public AttributeInfo[] Attributes { get; set; }
+	public AttributeInspection[] Attributes { get; set; }
 	/// <summary>The accessor of the property (such as internal, private, protected, public)</summary>
 	public string Accessor { get; set; }
 	/// <summary>Any modifiers to the property (such as static, virtual, override, etc.)</summary>
 	public string Modifier { get; set; }
 	/// <summary>The information of the property's type</summary>
-	public QuickTypeInfo TypeInfo { get; set; }
+	public QuickTypeInspection TypeInfo { get; set; }
 	/// <summary>The information of where the property was implemented</summary>
-	public QuickTypeInfo ImplementedType { get; set; }
+	public QuickTypeInspection ImplementedType { get; set; }
 	/// <summary>The parameters the property has (if any)</summary>
-	public ParameterInfo[] Parameters { get; set; }
+	public ParameterInspection[] Parameters { get; set; }
 	/// <summary>The getter method of the property (this can be null, you must check the hasGetter variable)</summary>
-	public MethodInfo Getter { get; set; }
+	public MethodInspection Getter { get; set; }
 	/// <summary>The setter method of the property (this can be null, you must check the hasSetter variable)</summary>
-	public MethodInfo Setter { get; set; }
+	public MethodInspection Setter { get; set; }
 	/// <summary>The partial declaration of the property as can be found in the code</summary>
 	public string Declaration { get; set; }
 	/// <summary>The partial declaration of the property's parameters (if any) as can be found in the code</summary>
@@ -62,19 +62,19 @@ public class PropertyInfo : BaseInfo
 	/// <param name="recursive">Set to true to recursively look through base types</param>
 	/// <param name="isStatic">Set to true to record only static members</param>
 	/// <returns>Returns an array of property informations</returns>
-	public static PropertyInfo[] GenerateInfoArray(TypeDefinition type, bool recursive, bool isStatic)
+	public static PropertyInspection[] GenerateInfoArray(TypeDefinition type, bool recursive, bool isStatic)
 	{
 		if(!recursive)
 		{
-			PropertyInfo[] results = GenerateInfoArray(type.Properties);
+			PropertyInspection[] results = GenerateInfoArray(type.Properties);
 			
 			RemoveUnwanted(ref results, isStatic, true);
 			
 			return results;
 		}
 		
-		List<PropertyInfo> properties = new List<PropertyInfo>();
-		PropertyInfo[] temp;
+		List<PropertyInspection> properties = new List<PropertyInspection>();
+		PropertyInspection[] temp;
 		TypeDefinition currType = type;
 		TypeReference currTypeRef = type.Resolve();
 		TypeReference baseType;
@@ -108,10 +108,10 @@ public class PropertyInfo : BaseInfo
 	/// <summary>Generates an array of property informations from the given collection of property definitions</summary>
 	/// <param name="properties">The collection of property definitions</param>
 	/// <returns>Returns an array of property informations</returns>
-	public static PropertyInfo[] GenerateInfoArray(Collection<PropertyDefinition> properties)
+	public static PropertyInspection[] GenerateInfoArray(Collection<PropertyDefinition> properties)
 	{
-		List<PropertyInfo> results = new List<PropertyInfo>();
-		PropertyInfo info;
+		List<PropertyInspection> results = new List<PropertyInspection>();
+		PropertyInspection info;
 		int genericId = isGeneric;
 		
 		foreach(PropertyDefinition property in properties)
@@ -130,23 +130,23 @@ public class PropertyInfo : BaseInfo
 	/// <summary>Generates the property information from the given property definition</summary>
 	/// <param name="property">The property information to gather information from</param>
 	/// <returns>Returns the property information that's generated</returns>
-	public static PropertyInfo GenerateInfo(PropertyDefinition property)
+	public static PropertyInspection GenerateInfo(PropertyDefinition property)
 	{
-		PropertyInfo info = new PropertyInfo();
+		PropertyInspection info = new PropertyInspection();
 		
 		info.HasGetter = (property.GetMethod != null);
 		info.HasSetter = (property.SetMethod != null);
 		info.Getter = (info.HasGetter
 			? (isGeneric != -1
-				? MethodInfo.GetGenericMethodInfo(_type, _currType, _currTypeRef, property.GetMethod)
-				: MethodInfo.GenerateInfo(property.GetMethod)
+				? MethodInspection.GetGenericMethodInfo(_type, _currType, _currTypeRef, property.GetMethod)
+				: MethodInspection.GenerateInfo(property.GetMethod)
 			)
 			: null
 		);
 		info.Setter = (info.HasSetter
 			? (isGeneric != -1
-				? MethodInfo.GetGenericMethodInfo(_type, _currType, _currTypeRef, property.SetMethod)
-				: MethodInfo.GenerateInfo(property.SetMethod)
+				? MethodInspection.GetGenericMethodInfo(_type, _currType, _currTypeRef, property.SetMethod)
+				: MethodInspection.GenerateInfo(property.SetMethod)
 			)
 			: null
 		);
@@ -168,8 +168,8 @@ public class PropertyInfo : BaseInfo
 		info.Name = property.Name;
 		info.PartialFullName = property.FullName.Split("::")[1].Replace(",", ", ");
 		info.IsStatic = !property.HasThis;
-		info.Attributes = AttributeInfo.GenerateInfoArray(property.CustomAttributes);
-		info.Parameters = ParameterInfo.GenerateInfoArray(property.Parameters);
+		info.Attributes = AttributeInspection.GenerateInfoArray(property.CustomAttributes);
+		info.Parameters = ParameterInspection.GenerateInfoArray(property.Parameters);
 		info.Accessor = GetAccessor(info.Getter, info.Setter);
 		if(isGeneric == 1)
 		{
@@ -190,11 +190,11 @@ public class PropertyInfo : BaseInfo
 		}
 		else
 		{
-			info.TypeInfo = QuickTypeInfo.GenerateInfo(property.PropertyType);
+			info.TypeInfo = QuickTypeInspection.GenerateInfo(property.PropertyType);
 		}
 		if(!property.HasThis) { info.Modifier = "static"; }
 		else { info.Modifier = GetModifier(info.Getter, info.Setter); }
-		info.ImplementedType = QuickTypeInfo.GenerateInfo(property.DeclaringType);
+		info.ImplementedType = QuickTypeInspection.GenerateInfo(property.DeclaringType);
 		info.GetSetDeclaration = GetGetSetDeclaration(info.Getter, info.Setter, info.Accessor);
 		info.Declaration = (
 			info.Accessor + " " +
@@ -228,8 +228,8 @@ public class PropertyInfo : BaseInfo
 	{
 		switch(accessor)
 		{
-			case "internal": return (Inspector.TypeInfo.ignorePrivate ? 0 : 1);
-			case "private": return (Inspector.TypeInfo.ignorePrivate ? 0 : 2);
+			case "internal": return (TypeInspection.ignorePrivate ? 0 : 1);
+			case "private": return (TypeInspection.ignorePrivate ? 0 : 2);
 			case "protected": return 3;
 			case "public": return 4;
 		}
@@ -245,7 +245,7 @@ public class PropertyInfo : BaseInfo
 	/// <param name="setter">The setter method (can be null)</param>
 	/// <param name="accessor">The accessor of the property (should be highest visible accessor)</param>
 	/// <returns>Returns the get / set declaration of the property</returns>
-	private static string GetGetSetDeclaration(MethodInfo getter, MethodInfo setter, string accessor)
+	private static string GetGetSetDeclaration(MethodInspection getter, MethodInspection setter, string accessor)
 	{
 		int infoId = GetAccessorId(accessor);
 		int getterId = (getter != null ? GetAccessorId(getter.Accessor) : 0);
@@ -271,9 +271,9 @@ public class PropertyInfo : BaseInfo
 	/// <param name="temp">The array of property informations to remove from</param>
 	/// <param name="isStatic">Set to true to remove all non-static members</param>
 	/// <param name="isOriginal">Set to false if it's a base type, this will remove any private members</param>
-	private static void RemoveUnwanted(ref PropertyInfo[] temp, bool isStatic, bool isOriginal)
+	private static void RemoveUnwanted(ref PropertyInspection[] temp, bool isStatic, bool isOriginal)
 	{
-		List<PropertyInfo> properties = new List<PropertyInfo>(temp);
+		List<PropertyInspection> properties = new List<PropertyInspection>(temp);
 		
 		for(int i = temp.Length - 1; i >= 0; i--)
 		{
@@ -297,13 +297,13 @@ public class PropertyInfo : BaseInfo
 	/// <summary>Removes any duplicates from the array of property informations</summary>
 	/// <param name="temp">The array of property informations to remove from</param>
 	/// <param name="listProperties">The list of properties recursive-ordered to reference if there are any duplicates</param>
-	private static void RemoveDuplicates(ref PropertyInfo[] temp, List<PropertyInfo> listProperties)
+	private static void RemoveDuplicates(ref PropertyInspection[] temp, List<PropertyInspection> listProperties)
 	{
-		List<PropertyInfo> properties = new List<PropertyInfo>(temp);
+		List<PropertyInspection> properties = new List<PropertyInspection>(temp);
 		
 		for(int i = temp.Length - 1; i >= 0; i--)
 		{
-			foreach(PropertyInfo property in listProperties)
+			foreach(PropertyInspection property in listProperties)
 			{
 				if(properties[i].PartialFullName == property.PartialFullName)
 				{
@@ -320,7 +320,7 @@ public class PropertyInfo : BaseInfo
 	/// <param name="getter">The getter method (can be null)</param>
 	/// <param name="setter">The setter method (can be null)</param>
 	/// <returns>Returns the accessor</returns>
-	private static string GetAccessor(MethodInfo getter, MethodInfo setter)
+	private static string GetAccessor(MethodInspection getter, MethodInspection setter)
 	{
 		int getterId = (getter != null ? GetAccessorId(getter.Accessor) : 0);
 		int setterId = (setter != null ? GetAccessorId(setter.Accessor) : 0);
@@ -348,7 +348,7 @@ public class PropertyInfo : BaseInfo
 	/// <param name="getter">The getter method (can be null)</param>
 	/// <param name="setter">The setter method (can be null)</param>
 	/// <returns>Returns the modifier of the property</returns>
-	private static string GetModifier(MethodInfo getter, MethodInfo setter)
+	private static string GetModifier(MethodInspection getter, MethodInspection setter)
 	{
 		int getterId = (getter != null ? GetAccessorId(getter.Accessor) : 0);
 		int setterId = (setter != null ? GetAccessorId(setter.Accessor) : 0);
@@ -362,12 +362,12 @@ public class PropertyInfo : BaseInfo
 	/// <summary>Gets an array of parameter declarations</summary>
 	/// <param name="property">The property information to look into</param>
 	/// <returns>Returns the array of parameter declarations</returns>
-	private static string[] GetParameterDeclarations(PropertyInfo property)
+	private static string[] GetParameterDeclarations(PropertyInspection property)
 	{
 		string[] declarations = new string[property.Parameters.Length];
 		int i = 0;
 		
-		foreach(ParameterInfo parameter in property.Parameters)
+		foreach(ParameterInspection parameter in property.Parameters)
 		{
 			declarations[i++] = parameter.FullDeclaration;
 		}

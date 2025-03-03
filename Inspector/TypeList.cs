@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 
@@ -44,7 +44,7 @@ public class TypeList
 					{
 						continue;
 					}
-					if(TypeInfo.ignorePrivate)
+					if(TypeInspection.ignorePrivate)
 					{
 						if(type.IsNotPublic) { continue; }
 						if(type.IsNestedAssembly || type.IsNestedPrivate) { continue; }

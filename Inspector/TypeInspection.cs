@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>All the information relevant to types</summary>
-public partial class TypeInfo
+public partial class TypeInspection
 {
 	#region Properties
 	
@@ -20,7 +20,7 @@ public partial class TypeInfo
 	internal static bool ignorePrivate = true;
 	
 	/// <summary>The quick look at the information of the type (including name, namespace, generic parameters)</summary>
-	public QuickTypeInfo Info { get; set; }
+	public QuickTypeInspection Info { get; set; }
 	/// <summary>The name of the assembly where the type is found in</summary>
 	public string AssemblyName { get; set; }
 	/// <summary>Set to true if the type is a delegate declaration</summary>
@@ -45,41 +45,37 @@ public partial class TypeInfo
 	/// Gets the parent type in which this type is nested under. If it is not a nested type,
 	/// then it will be null. Check hasDeclaringType to see if it exists to begin with
 	/// </summary>
-	public QuickTypeInfo DeclaringType { get; set; }
+	public QuickTypeInspection DeclaringType { get; set; }
 	/// <summary>The partial declaration of the class within the inheritance declaration that can be found within the code</summary>
 	public string Declaration { get; set; }
 	/// <summary>The full declaration of the type as it would be found within the code</summary>
 	public string FullDeclaration { get; set; }
 	/// <summary>The information of the base type that the type inherits</summary>
-	public QuickTypeInfo BaseType { get; set; }
+	public QuickTypeInspection BaseType { get; set; }
 	/// <summary>The array of attributes that the type contains</summary>
-	public AttributeInfo[] Attributes { get; set; }
+	public AttributeInspection[] Attributes { get; set; }
 	/// <summary>The array of type information of interfaces that the type implements</summary>
-	public QuickTypeInfo[] Interfaces { get; set; }
+	public QuickTypeInspection[] Interfaces { get; set; }
 	/// <summary>The array of constructors that the type contains</summary>
-	public MethodInfo[] Constructors { get; set; }
+	public MethodInspection[] Constructors { get; set; }
 	/// <summary>The array of fields that the type contains</summary>
-	public FieldInfo[] Fields { get; set; }
+	public FieldInspection[] Fields { get; set; }
 	/// <summary>The array of static fields that the type contains</summary>
-	public FieldInfo[] StaticFields { get; set; }
+	public FieldInspection[] StaticFields { get; set; }
 	/// <summary>The array of properties that the type contains</summary>
-	public PropertyInfo[] Properties { get; set; }
+	public PropertyInspection[] Properties { get; set; }
 	/// <summary>The array of static properties that the type contains</summary>
-	public PropertyInfo[] StaticProperties { get; set; }
+	public PropertyInspection[] StaticProperties { get; set; }
 	/// <summary>The array of events that the type contains</summary>
-	public EventInfo[] Events { get; set; }
+	public EventInspection[] Events { get; set; }
 	/// <summary>The array of static events that the type contains</summary>
-	public EventInfo[] StaticEvents { get; set; }
+	public EventInspection[] StaticEvents { get; set; }
 	/// <summary>The array of methods that the type contains</summary>
-	public MethodInfo[] Methods { get; set; }
+	public MethodInspection[] Methods { get; set; }
 	/// <summary>The array of static methods that the type contains</summary>
-	public MethodInfo[] StaticMethods { get; set; }
+	public MethodInspection[] StaticMethods { get; set; }
 	/// <summary>The array of operators that the type contains</summary>
-	public MethodInfo[] Operators { get; set; }
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"\u0060\d+")]
-	public static partial Regex RemoveUnlocalizedGenericParametersRegex();
+	public MethodInspection[] Operators { get; set; }
 	
 	#endregion // Properties
 	
@@ -94,7 +90,7 @@ public partial class TypeInfo
 	/// <param name="info">The resulting type information that is generated</param>
 	/// <param name="assemblies">The list of assemblies to look into</param>
 	/// <returns>Returns true if the type information is found</returns>
-	public static bool GenerateTypeInfo(string typePath, out TypeInfo info, params string[] assemblies)
+	public static bool GenerateTypeInfo(string typePath, out TypeInspection info, params string[] assemblies)
 	{
 		assembliesUsed = assemblies;
 		foreach(string assembly in assemblies)
@@ -162,9 +158,9 @@ public partial class TypeInfo
 	/// <param name="asm">The assembly definition where the type came from</param>
 	/// <param name="type">The type definition to look into</param>
 	/// <returns>Returns the type information</returns>
-	public static TypeInfo GenerateInfo(AssemblyDefinition asm, TypeDefinition type)
+	public static TypeInspection GenerateInfo(AssemblyDefinition asm, TypeDefinition type)
 	{
-		TypeInfo info = new TypeInfo();
+		TypeInspection info = new TypeInspection();
 		string[] generics = GetGenericParametersString(type.GenericParameters.ToArray());
 		
 		if(type.IsPublic || type.IsNestedPublic) { info.Accessor = "public"; }
@@ -173,11 +169,11 @@ public partial class TypeInfo
 		else if(type.IsNestedPrivate) { info.Accessor = "private"; }
 		else { info.Accessor = "internal"; }
 		
-		info.Info = QuickTypeInfo.GenerateInfo(type);
+		info.Info = QuickTypeInspection.GenerateInfo(type);
 		info.HasDeclaringType = (type.DeclaringType != null);
 		if(info.HasDeclaringType)
 		{
-			info.DeclaringType = QuickTypeInfo.GenerateInfo(type.DeclaringType);
+			info.DeclaringType = QuickTypeInspection.GenerateInfo(type.DeclaringType);
 		}
 		else
 		{
@@ -192,27 +188,27 @@ public partial class TypeInfo
 				case "System.ValueType":
 				case "System.Object":
 				{
-					info.BaseType = new QuickTypeInfo();
+					info.BaseType = new QuickTypeInspection();
 					info.BaseType.UnlocalizedName = "";
 					info.BaseType.Name = "";
 					info.BaseType.FullName = "";
 					info.BaseType.NamespaceName = "";
-					info.BaseType.GenericParameters = new GenericParametersInfo[0];
+					info.BaseType.GenericParameters = new GenericParametersInspection[0];
 				} break;
 				default:
 				{
-					info.BaseType = QuickTypeInfo.GenerateInfo(type.BaseType);
+					info.BaseType = QuickTypeInspection.GenerateInfo(type.BaseType);
 				} break;
 			}
 		}
 		else
 		{
-			info.BaseType = new QuickTypeInfo();
+			info.BaseType = new QuickTypeInspection();
 			info.BaseType.UnlocalizedName = "";
 			info.BaseType.Name = "";
 			info.BaseType.FullName = "";
 			info.BaseType.NamespaceName = "";
-			info.BaseType.GenericParameters = new GenericParametersInfo[0];
+			info.BaseType.GenericParameters = new GenericParametersInspection[0];
 		}
 		info.IsDelegate = (info.BaseType != null && info.BaseType.FullName == "System.MulticastDelegate");
 		info.IsNested = type.IsNested;
@@ -237,18 +233,18 @@ public partial class TypeInfo
 		info.IsStatic = (info.Modifier == "static");
 		info.IsAbstract = (info.Modifier == "abstract");
 		info.IsSealed = (info.Modifier == "sealed");
-		info.Attributes = AttributeInfo.GenerateInfoArray(type.CustomAttributes);
+		info.Attributes = AttributeInspection.GenerateInfoArray(type.CustomAttributes);
 		info.Interfaces = GenerateInterfaceInfoArray(type.Interfaces);
-		info.Constructors = MethodInfo.GenerateInfoArray(type, false, false, true);
-		info.Fields = FieldInfo.GenerateInfoArray(type, true, false);
-		info.StaticFields = FieldInfo.GenerateInfoArray(type, false, true);
-		info.Properties = PropertyInfo.GenerateInfoArray(type, true, false);
-		info.StaticProperties = PropertyInfo.GenerateInfoArray(type, false, true);
-		info.Events = EventInfo.GenerateInfoArray(type, true, false);
-		info.StaticEvents = EventInfo.GenerateInfoArray(type, false, true);
-		info.Methods = MethodInfo.GenerateInfoArray(type, true, false);
-		info.StaticMethods = MethodInfo.GenerateInfoArray(type, false, true);
-		info.Operators = MethodInfo.GenerateInfoArray(type, true, true, false, true);
+		info.Constructors = MethodInspection.GenerateInfoArray(type, false, false, true);
+		info.Fields = FieldInspection.GenerateInfoArray(type, true, false);
+		info.StaticFields = FieldInspection.GenerateInfoArray(type, false, true);
+		info.Properties = PropertyInspection.GenerateInfoArray(type, true, false);
+		info.StaticProperties = PropertyInspection.GenerateInfoArray(type, false, true);
+		info.Events = EventInspection.GenerateInfoArray(type, true, false);
+		info.StaticEvents = EventInspection.GenerateInfoArray(type, false, true);
+		info.Methods = MethodInspection.GenerateInfoArray(type, true, false);
+		info.StaticMethods = MethodInspection.GenerateInfoArray(type, false, true);
+		info.Operators = MethodInspection.GenerateInfoArray(type, true, true, false, true);
 		
 		System.Array.Sort(info.Constructors);
 		System.Array.Sort(info.Fields);
@@ -276,11 +272,11 @@ public partial class TypeInfo
 	/// <summary>Gets the generic parameter constraints (if any)</summary>
 	/// <param name="generics">The generic parameter to look into</param>
 	/// <returns>Returns the string of the generic parameter constraints</returns>
-	public static string GetGenericParameterConstraints(GenericParametersInfo[] generics)
+	public static string GetGenericParameterConstraints(GenericParametersInspection[] generics)
 	{
 		string results = "";
 		
-		foreach(GenericParametersInfo generic in generics)
+		foreach(GenericParametersInspection generic in generics)
 		{
 			if(generic.Constraints.Length == 0) { continue; }
 			
@@ -340,7 +336,7 @@ public partial class TypeInfo
 		}
 		
 		int index = 0;
-		string newName = RemoveUnlocalizedGenericParametersRegex().Replace(name, match => {
+		string newName = InspectionRegex.GenericNotation().Replace(name, match => {
 			int count;
 			string result = "";
 			
@@ -386,9 +382,9 @@ public partial class TypeInfo
 	/// <summary>Gets the return type of the delegate in string form</summary>
 	/// <param name="info">The type info to look into</param>
 	/// <returns>Returns the delegate return type in string form</returns>
-	private static string GetDelegateReturnType(TypeInfo info)
+	private static string GetDelegateReturnType(TypeInspection info)
 	{
-		foreach(MethodInfo method in info.Methods)
+		foreach(MethodInspection method in info.Methods)
 		{
 			if(method.Name == "Invoke")
 			{
@@ -403,11 +399,11 @@ public partial class TypeInfo
 	/// <param name="info">The type information to look into</param>
 	/// <param name="type">The type definition to look into</param>
 	/// <returns>Returns the full declaration of the type</returns>
-	private static string GetFullDeclaration(TypeInfo info, TypeDefinition type)
+	private static string GetFullDeclaration(TypeInspection info, TypeDefinition type)
 	{
 		if(info.IsDelegate)
 		{
-			foreach(MethodInfo method in info.Methods)
+			foreach(MethodInspection method in info.Methods)
 			{
 				if(method.Name == "Invoke")
 				{
@@ -440,19 +436,19 @@ public partial class TypeInfo
 	/// <summary>Generates an array of interface informations</summary>
 	/// <param name="interfaces">The collection of interface implementations</param>
 	/// <returns>Returns an array of interface informations</returns>
-	private static QuickTypeInfo[] GenerateInterfaceInfoArray(Collection<InterfaceImplementation> interfaces)
+	private static QuickTypeInspection[] GenerateInterfaceInfoArray(Collection<InterfaceImplementation> interfaces)
 	{
-		List<QuickTypeInfo> results = new List<QuickTypeInfo>();
-		QuickTypeInfo info;
+		List<QuickTypeInspection> results = new List<QuickTypeInspection>();
+		QuickTypeInspection info;
 		
 		foreach(InterfaceImplementation iFace in interfaces)
 		{
-			info = QuickTypeInfo.GenerateInfo(iFace.InterfaceType);
+			info = QuickTypeInspection.GenerateInfo(iFace.InterfaceType);
 			if(ignorePrivate && !IsTypePublic(info.UnlocalizedName, assembliesUsed))
 			{
 				continue;
 			}
-			results.Add(QuickTypeInfo.GenerateInfo(iFace.InterfaceType));
+			results.Add(QuickTypeInspection.GenerateInfo(iFace.InterfaceType));
 		}
 		
 		return results.ToArray();

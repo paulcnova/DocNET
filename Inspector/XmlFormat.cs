@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -36,22 +36,6 @@ public partial class XmlFormat
 	/// <summary>Gets the list of names and descriptions of the type parameters documentation</summary>
 	public List<NameDescription> TypeParameters { get; private set; } = new List<NameDescription>();
 	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"`+\d+")]
-	private static partial Regex GenericNotationRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"((?:[a-zA-Z0-9`]+[\.\/]?)*)[\.\/](.*)|([a-zA-Z0-9`]+)")]
-	private static partial Regex TypeRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"(.):((?:[a-zA-Z0-9`]+[\.\/]?)*).*")]
-	private static partial Regex CrefRegex();
-	
-	// TODO: Centralize this into a helper class.
-	[GeneratedRegex(@"^[ ]{12}", RegexOptions.Multiline)]
-	private static partial Regex TrimWhitespaceRegex();
-	
 	#endregion // Properties
 	
 	#region Public Methods
@@ -83,7 +67,8 @@ public partial class XmlFormat
 	
 	private static List<NameDescription> GatherNameDescriptionList(XmlNodeList members, string attrName)
 	{
-		List<NameDescription> list = [];
+		List<NameDescription> list = new List<NameDescription>();
+		
 		
 		foreach(XmlElement member in members)
 		{
@@ -112,7 +97,7 @@ public partial class XmlFormat
 	
 	private static string TrimTextContent(string content)
 	{
-		string results = TrimWhitespaceRegex().Replace(content, "").Trim();
+		string results = InspectionRegex.Unindent().Replace(content, "").Trim();
 		
 		if(results != "" && !(
 			results.EndsWith('.')
@@ -158,11 +143,11 @@ public partial class XmlFormat
 						}
 						else if(element.HasAttribute("cref"))
 						{
-							Match match = CrefRegex().Match(element.Attributes["cref"].Value);
+							Match match = InspectionRegex.Cref().Match(element.Attributes["cref"].Value);
 							
 							if(!match.Success) { break; }
 							
-							Match typeMatch = TypeRegex().Match(match.Groups[2].Value);
+							Match typeMatch = InspectionRegex.Type().Match(match.Groups[2].Value);
 							
 							if(!typeMatch.Success) { break; }
 							
@@ -172,7 +157,7 @@ public partial class XmlFormat
 								: typeMatch.Groups[match.Groups[1].Value == "T" ? 0 : 1].Value;
 							string name = !typeMatch.Groups[1].Success
 								? typeMatch.Groups[0].Value
-								: GenericNotationRegex().Replace(typeMatch.Groups[2].Value, "");
+								: InspectionRegex.GenericNotation().Replace(typeMatch.Groups[2].Value, "");
 							
 							content += isSystem
 								? Utility.CreateSystemLink(link, name)

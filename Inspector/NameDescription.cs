@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspector;
+namespace DocNET.Inspections;
 
 /// <summary>A class that holds a name and description</summary>
 public class NameDescription

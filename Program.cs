@@ -1,6 +1,7 @@
 
 namespace DocNET;
 
+using DocNET.Information;
 using DocNET.Inspections;
 using DocNET.Utilities;
 
@@ -45,6 +46,8 @@ public static class Program
 		{
 			assemblies = string.Join(",", System.IO.Directory.GetFiles($"{System.Environment.CurrentDirectory}/bin/Debug/net8.0", "*.dll"));
 		}
+		inspect = inspect.Replace('-', '`');
+		System.Console.WriteLine(inspect);
 		
 		if(isHelp)
 		{
@@ -78,6 +81,8 @@ public static class Program
 		if(data == null) { System.Console.WriteLine($"Type [{typePath}] does not exist within any of the listed assemblies:\n\t{string.Join("\n\t", assemblies)}"); }
 		
 		System.Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(data));
+		System.Console.WriteLine();
+		TypeInfo info = new TypeInfo(typePath, assemblies, $"{System.Environment.CurrentDirectory}/bin/Debug/net8.0/DocNET.xml", false);
 	}
 	
 	public static void ListTypes(string[] assemblies)

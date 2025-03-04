@@ -137,7 +137,7 @@ public class TypeInspection
 				? $"{this.GetDelegateReturnType(type)} "
 				: ""
 		)}{this.Info.Name}";
-		this.FullDeclaration = this.GetFullDeclaration(type);;
+		this.FullDeclaration = this.GetFullDeclaration(type);
 	}
 	
 	#endregion // Properties
@@ -233,11 +233,22 @@ public class TypeInspection
 		}
 		
 		bool hasInheritance = !string.IsNullOrEmpty(this.BaseType.FullName) || this.Interfaces.Count > 0;
-		string decl = $"{this.Declaration}{(hasInheritance ? " : " : "")}";
+		string decl;
+		
+		// TODO: Look into other portions of the code that are missing!
+		if(this.Info.GenericParameters.Count > 0)
+		{
+			decl = $"{this.Declaration}<{string.Join(", ", this.Info.GenericParameters.ConvertAll(gp => gp.UnlocalizedName))}>";
+		}
+		else
+		{
+			decl = this.Declaration;
+		}
+		decl += hasInheritance ? " : " : "";
 		
 		if(this.BaseType.FullName != "")
 		{
-			decl += $"{this.BaseType.Name}{(this.Interfaces.Count > 0 ? ", " : "")}";
+			decl += $"{this.BaseType.FullName}{(this.Interfaces.Count > 0 ? ", " : "")}";
 		}
 		if(this.Interfaces.Count > 0)
 		{

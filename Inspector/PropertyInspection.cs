@@ -72,10 +72,10 @@ public class PropertyInspection : BaseInspection
 		this.HasGetter = property.GetMethod != null;
 		this.HasSetter = property.SetMethod != null;
 		this.Getter = this.HasGetter
-			? new MethodData(property.GetMethod)
+			? new MethodInspection(property.GetMethod)
 			: null;
 		this.Setter = this.HasSetter
-			? new MethodData(property.SetMethod)
+			? new MethodInspection(property.SetMethod)
 			: null;
 		if(this.Getter != null && Utility.GetAccessorId(this.Getter.Accessor, true) == 0)
 		{
@@ -99,12 +99,12 @@ public class PropertyInspection : BaseInspection
 		this.Attributes = AttributeInspection.CreateArray(property.CustomAttributes);
 		this.Parameters = ParameterInspection.CreateArray(property.Parameters);
 		this.Accessor = this.GetAccessor();
-		this.TypeInfo = new QuickTypeData(property.PropertyType);
+		this.TypeInfo = new QuickTypeInspection(property.PropertyType);
 		
 		if(!property.HasThis) { this.Modifier = "static"; }
 		else { this.Modifier = this.GetModifier(); }
 		
-		this.ImplementedType = new QuickTypeData(property.DeclaringType);
+		this.ImplementedType = new QuickTypeInspection(property.DeclaringType);
 		this.GetSetDeclaration = this.GetGetSetDeclaration(ignorePrivate);
 		this.Declaration = $"{this.Accessor} {(
 			this.Modifier != ""
@@ -125,10 +125,10 @@ public class PropertyInspection : BaseInspection
 		this.HasGetter = property.GetMethod != null;
 		this.HasSetter = property.SetMethod != null;
 		this.Getter = this.HasGetter
-			? new MethodData(type, boundType, boundTypeRef, property.GetMethod)
+			? new MethodInspection(type, boundType, boundTypeRef, property.GetMethod)
 			: null;
 		this.Setter = this.HasSetter
-			? new MethodData(type, boundType, boundTypeRef, property.SetMethod)
+			? new MethodInspection(type, boundType, boundTypeRef, property.SetMethod)
 			: null;
 		if(this.Getter != null && Utility.GetAccessorId(this.Getter.Accessor, true) == 0)
 		{
@@ -167,7 +167,7 @@ public class PropertyInspection : BaseInspection
 		if(!property.HasThis) { this.Modifier = "static"; }
 		else { this.Modifier = this.GetModifier(); }
 		
-		this.ImplementedType = new QuickTypeData(property.DeclaringType);
+		this.ImplementedType = new QuickTypeInspection(property.DeclaringType);
 		this.GetSetDeclaration = this.GetGetSetDeclaration(ignorePrivate);
 		this.Declaration = $"{this.Accessor} {(
 			this.Modifier != ""

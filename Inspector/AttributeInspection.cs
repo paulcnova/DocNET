@@ -33,12 +33,12 @@ public class AttributeInspection
 	{
 		int i = 0;
 		
-		this.TypeInfo = new QuickTypeData(attr.AttributeType);
+		this.TypeInfo = new QuickTypeInspection(attr.AttributeType);
 		foreach(CustomAttributeArgument arg in attr.ConstructorArguments)
 		{
 			AttributeFieldData fieldData = new AttributeFieldData();
 			
-			fieldData.TypeInfo = new QuickTypeData(arg.Type);
+			fieldData.TypeInfo = new QuickTypeInspection(arg.Type);
 			fieldData.Name = attr.Constructor.Parameters[i].Name;
 			fieldData.Value = fieldData.TypeInfo.Name != "bool"
 				? $"{arg.Value}"
@@ -52,7 +52,7 @@ public class AttributeInspection
 		{
 			AttributeFieldData fieldData = new AttributeFieldData();
 			
-			fieldData.TypeInfo = new QuickTypeData(field.Argument.Type);
+			fieldData.TypeInfo = new QuickTypeInspection(field.Argument.Type);
 			fieldData.Name = field.Name;
 			fieldData.Value = fieldData.TypeInfo.Name != "bool"
 				? $"{field.Argument.Value}"
@@ -64,7 +64,7 @@ public class AttributeInspection
 		{
 			AttributeFieldData fieldData = new AttributeFieldData();
 			
-			fieldData.TypeInfo = new QuickTypeData(property.Argument.Type);
+			fieldData.TypeInfo = new QuickTypeInspection(property.Argument.Type);
 			fieldData.Name = property.Name;
 			fieldData.Value = fieldData.Name != "bool"
 				? $"{property.Argument.Value}"

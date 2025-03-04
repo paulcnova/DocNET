@@ -82,7 +82,7 @@ public class TypeInspection
 		
 		this.Info = new QuickTypeInspection(type);
 		this.HasDeclaringType = type.DeclaringType != null;
-		this.DeclaringType = this.HasDeclaringType ? new QuickTypeData(type.DeclaringType) : null;
+		this.DeclaringType = this.HasDeclaringType ? new QuickTypeInspection(type.DeclaringType) : null;
 		this.AssemblyName = asm.Name.Name;
 		if(type.BaseType != null)
 		{
@@ -94,7 +94,7 @@ public class TypeInspection
 					this.BaseType = new QuickTypeInspection();
 					break;
 				default:
-					this.BaseType = new QuickTypeData(type.BaseType);
+					this.BaseType = new QuickTypeInspection(type.BaseType);
 					break;
 			}
 		}
@@ -269,7 +269,7 @@ public class TypeInspection
 		
 		foreach(InterfaceImplementation iFace in interfaces)
 		{
-			QuickTypeInspection info = new QuickTypeData(iFace.InterfaceType);
+			QuickTypeInspection info = new QuickTypeInspection(iFace.InterfaceType);
 			
 			if(ignorePrivate && !this.IsTypePublic(info.UnlocalizedName, assemblies))
 			{

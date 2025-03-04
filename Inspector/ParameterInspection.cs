@@ -43,7 +43,7 @@ public class ParameterInspection
 	public ParameterInspection(ParameterDefinition parameter)
 	{
 		this.Name = parameter.Name;
-		this.TypeInfo = new QuickTypeData(parameter.ParameterType);
+		this.TypeInfo = new QuickTypeInspection(parameter.ParameterType);
 		this.Attributes = AttributeInspection.CreateArray(parameter.CustomAttributes);
 		
 		if(parameter.IsIn) { this.Modifier = "in"; }

@@ -32,7 +32,7 @@ public class GenericParameterInspection
 		this.Name = Utility.MakeNameFriendly(parameter.Name);
 		foreach(GenericParameterConstraint constraint in parameter.Constraints)
 		{
-			this.Constraints.Add(new QuickTypeData(constraint.ConstraintType));
+			this.Constraints.Add(new QuickTypeInspection(constraint.ConstraintType));
 		}
 	}
 	

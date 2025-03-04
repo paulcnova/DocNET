@@ -72,7 +72,7 @@ public static class Program
 	
 	public static void InspectSpecific(string typePath, string[] assemblies)
 	{
-		TypeData data = TypeData.Search(typePath, assemblies);
+		TypeInspection data = TypeInspection.Search(typePath, assemblies);
 		
 		if(data == null) { System.Console.WriteLine($"Type [{typePath}] does not exist within any of the listed assemblies:\n\t{string.Join("\n\t", assemblies)}"); }
 		

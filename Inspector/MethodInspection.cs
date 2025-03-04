@@ -312,7 +312,7 @@ public partial class MethodInspection : BaseInspection
 	
 	private void Construct(MethodDefinition method, MethodReference methodRef, bool ignorePrivate = true)
 	{
-		QuickTypeInspection typeInfo = new QuickTypeData(methodRef.DeclaringType);
+		QuickTypeInspection typeInfo = new QuickTypeInspection(methodRef.DeclaringType);
 		Dictionary<string, QuickTypeInspection> hash = new Dictionary<string, QuickTypeInspection>();
 		bool isGeneric = false;
 		int i = 0;
@@ -345,7 +345,7 @@ public partial class MethodInspection : BaseInspection
 				parameter.FullDeclaration = parameter.GetFullDeclaration();
 			}
 		}
-		this.ReturnType = this.GetGenericInstanceTypeInfo(hash, this.ReturnType, new QuickTypeData(methodRef.ReturnType), out isGeneric);
+		this.ReturnType = this.GetGenericInstanceTypeInfo(hash, this.ReturnType, new QuickTypeInspection(methodRef.ReturnType), out isGeneric);
 		this.Declaration = $"{this.Accessor} {(
 			this.Modifier != ""
 				? $"{this.Modifier} "
@@ -392,8 +392,8 @@ public partial class MethodInspection : BaseInspection
 			method.Name == "op_Explicit"
 			|| method.Name == "op_Implicit"
 		);
-		this.ImplementedType = new QuickTypeData(method.DeclaringType);
-		this.ReturnType = new QuickTypeData(method.ReturnType);
+		this.ImplementedType = new QuickTypeInspection(method.DeclaringType);
+		this.ReturnType = new QuickTypeInspection(method.ReturnType);
 		
 		if(this.IsConstructor)
 		{

@@ -11,7 +11,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Remove="Source/**/*.cs"/>
     <Compile Remove="Templates/**/*.cs"/>
-    <Compile Remove="Inspector/**/*.cs"/>
   </ItemGroup>
   <Import Project="Documentation.props"/>
 </Project>

@@ -51,10 +51,10 @@ public class EventInspection : BaseInspection
 	public EventInspection(EventDefinition ev, bool ignorePrivate = true)
 	{
 		this.Name = ev.Name;
-		this.TypeInfo = new QuickTypeData(ev.EventType);
-		this.ImplementedType = new QuickTypeData(ev.DeclaringType);
-		this.Adder = new MethodData(ev.AddMethod);
-		this.Remover = new MethodData(ev.RemoveMethod);
+		this.TypeInfo = new QuickTypeInspection(ev.EventType);
+		this.ImplementedType = new QuickTypeInspection(ev.DeclaringType);
+		this.Adder = new MethodInspection(ev.AddMethod);
+		this.Remover = new MethodInspection(ev.RemoveMethod);
 		
 		if(ignorePrivate && Utility.GetAccessorId(this.Adder.Accessor, ignorePrivate) == 0)
 		{

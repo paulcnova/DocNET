@@ -68,8 +68,8 @@ public class FieldInspection : BaseInspection
 		string val = System.Text.ASCIIEncoding.ASCII.GetString(field.InitialValue);
 		
 		this.Name = field.Name;
-		this.TypeInfo = new QuickTypeData(field.FieldType);
-		this.ImplementedType = new QuickTypeData(field.DeclaringType);
+		this.TypeInfo = new QuickTypeInspection(field.FieldType);
+		this.ImplementedType = new QuickTypeInspection(field.DeclaringType);
 		this.Value = $"{field.Constant ?? val}";
 		this.IsConstant = field.HasConstant;
 		this.IsStatic = field.IsStatic;

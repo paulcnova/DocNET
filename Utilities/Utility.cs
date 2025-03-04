@@ -160,10 +160,10 @@ public static class Utility
 	/// <returns>Returns the list of generic parameter names</returns>
 	public static List<string> GetGenericParametersAsStrings(string fullName)
 	{
-		List<GenericParameterData> infos = GetGenericParameters(fullName);
+		List<GenericParameterInspection> infos = GetGenericParameters(fullName);
 		List<string> results = new List<string>();
 		
-		foreach(GenericParameterData info in infos)
+		foreach(GenericParameterInspection info in infos)
 		{
 			results.Add(Utility.MakeNameFriendly(info.Name.Replace(",", ", ")));
 		}
@@ -174,14 +174,14 @@ public static class Utility
 	/// <summary>Gets the list of information of generic parameters from the full name of the type</summary>
 	/// <param name="fullName">The full name of the type</param>
 	/// <returns>Returns the list of information of generic parameters</returns>
-	public static List<GenericParameterData> GetGenericParameters(string fullName)
+	public static List<GenericParameterInspection> GetGenericParameters(string fullName)
 	{
 		int lt = fullName.IndexOf('<');
 		
-		if(lt == -1) { return new List<GenericParameterData>(); }
+		if(lt == -1) { return new List<GenericParameterInspection>(); }
 		
-		List<GenericParameterData> results = new List<GenericParameterData>();
-		GenericParameterData data;
+		List<GenericParameterInspection> results = new List<GenericParameterInspection>();
+		GenericParameterInspection data;
 		int gt = fullName.LastIndexOf('>');
 		int scope = 0;
 		int curr = lt + 1;
@@ -197,7 +197,7 @@ public static class Utility
 			}
 			else if(fullName[i] == ',' && scope == 0)
 			{
-				data = new GenericParameterData();
+				data = new GenericParameterInspection();
 				data.Name = InspectionRegex.GenericNotation()
 					.Replace(fullName.Substring(curr, i - curr), "");
 				data.UnlocalizedName = UnlocalizeName(data.Name);
@@ -207,7 +207,7 @@ public static class Utility
 			}
 		}
 		
-		data = new GenericParameterData();
+		data = new GenericParameterInspection();
 		data.Name = InspectionRegex.GenericNotation()
 			.Replace(fullName.Substring(curr, gt - curr), "");
 		data.UnlocalizedName = UnlocalizeName(data.Name);
@@ -311,11 +311,11 @@ public static class Utility
 	/// <summary>Gets the generic parameter constraints (if any)</summary>
 	/// <param name="generics">The generic parameter to look into</param>
 	/// <returns>Returns the string of the generic parameter constraints</returns>
-	public static string GetGenericParameterConstraints(List<GenericParameterData> generics)
+	public static string GetGenericParameterConstraints(List<GenericParameterInspection> generics)
 	{
 		string results = "";
 		
-		foreach(GenericParameterData generic in generics)
+		foreach(GenericParameterInspection generic in generics)
 		{
 			if(generic.Constraints.Count == 0) { continue; }
 			
@@ -375,9 +375,9 @@ public static class Utility
 	/// <summary>Finds if the method is an extension</summary>
 	/// <param name="method">The method to look into</param>
 	/// <returns>Returns true if the method is an extension by having the extension attribute</returns>
-	public static bool HasExtensionAttribute(List<AttributeData> attributes)
+	public static bool HasExtensionAttribute(List<AttributeInspection> attributes)
 	{
-		foreach(AttributeData attr in attributes)
+		foreach(AttributeInspection attr in attributes)
 		{
 			if(attr.TypeInfo.FullName == "System.Runtime.CompilerServices.ExtensionAttribute")
 			{

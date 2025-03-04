@@ -1,11 +1,11 @@
 
-namespace DocNET.Inspections;
+namespace DocNET.Utilities;
 
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-using DocNET.Utilities;
+using DocNET.Inspections;
 
 /// <summary>A class that holds the format of the XML content</summary>
 public partial class XmlFormat

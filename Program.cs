@@ -2,6 +2,7 @@
 namespace DocNET;
 
 using DocNET.Inspections;
+using DocNET.Utilities;
 
 using System.Collections.Generic;
 using System.IO;
@@ -81,7 +82,7 @@ public static class Program
 	
 	public static void ListTypes(string[] assemblies)
 	{
-		TypeList list = DocNET.Inspections.TypeList.Create(true, assemblies);
+		TypeList list = TypeList.Create(true, assemblies);
 		
 		foreach(var kv in list.Types)
 		{

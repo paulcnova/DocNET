@@ -1,5 +1,5 @@
 
-namespace DocNET.Inspections;
+namespace DocNET.Utilities;
 
 using Mono.Cecil;
 

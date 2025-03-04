@@ -1,8 +1,12 @@
 
 namespace DocNET.Inspections;
 
+using DocNET.Utilities;
+
 using Mono.Cecil;
 using Mono.Collections.Generic;
+
+using System.Collections.Generic;
 
 /// <summary>All the information relevant to an attribute</summary>
 public class AttributeInspection
@@ -11,17 +15,68 @@ public class AttributeInspection
 	
 	/// <summary>Gets and sets the information of the type that the attribute is</summary>
 	public QuickTypeInspection TypeInfo { get; set; }
+	
 	/// <summary>Gets and sets the list of constructor arguments that the attribute is declaring</summary>
-	public AttributeFieldInfo[] ConstructorArgs { get; set; }
+	public List<AttributeFieldData> ConstructorArgs { get; set; } = new List<AttributeFieldData>();
+	
 	/// <summary>Gets and sets the list of fields and properties that the attribute is declaring</summary>
-	public AttributeFieldInfo[] Properties { get; set; }
+	public List<AttributeFieldData> Properties { get; set; } = new List<AttributeFieldData>();
+	
 	/// <summary>Gets and sets the declaration of parameters as seen if looking at the code</summary>
 	public string ParameterDeclaration { get; set; }
-	/// <summary>
-	/// Gets and sets the declaration of the attribute as a whole, with name and parameters as seen
-	/// if looking at the code
-	/// </summary>
+	
+	/// <summary>Gets and sets the declaration of the attribute as a whole, with name and parameters as seen if looking at the code</summary>
 	public string FullDeclaration { get; set; }
+	
+	/// <summary>A constructor that generates data for the attribute</summary>
+	public AttributeInspection(CustomAttribute attr)
+	{
+		int i = 0;
+		
+		this.TypeInfo = new QuickTypeData(attr.AttributeType);
+		foreach(CustomAttributeArgument arg in attr.ConstructorArguments)
+		{
+			AttributeFieldData fieldData = new AttributeFieldData();
+			
+			fieldData.TypeInfo = new QuickTypeData(arg.Type);
+			fieldData.Name = attr.Constructor.Parameters[i].Name;
+			fieldData.Value = fieldData.TypeInfo.Name != "bool"
+				? $"{arg.Value}"
+				: $"{arg.Value}".ToLower();
+			this.ConstructorArgs.Add(fieldData);
+			++i;
+		}
+		this.Properties = new List<AttributeFieldData>();
+		
+		foreach(CustomAttributeNamedArgument field in attr.Fields)
+		{
+			AttributeFieldData fieldData = new AttributeFieldData();
+			
+			fieldData.TypeInfo = new QuickTypeData(field.Argument.Type);
+			fieldData.Name = field.Name;
+			fieldData.Value = fieldData.TypeInfo.Name != "bool"
+				? $"{field.Argument.Value}"
+				: $"{field.Argument.Value}".ToLower();
+			
+			this.Properties.Add(fieldData);
+		}
+		foreach(CustomAttributeNamedArgument property in attr.Properties)
+		{
+			AttributeFieldData fieldData = new AttributeFieldData();
+			
+			fieldData.TypeInfo = new QuickTypeData(property.Argument.Type);
+			fieldData.Name = property.Name;
+			fieldData.Value = fieldData.Name != "bool"
+				? $"{property.Argument.Value}"
+				: $"{property.Argument.Value}".ToLower();
+		}
+		this.ParameterDeclaration = string.Join(", ", this.GetParameterDeclaration(this));
+		this.FullDeclaration = $"[{this.TypeInfo.FullName}{(
+			this.ParameterDeclaration != ""
+				? $"({this.ParameterDeclaration})"
+				: ""
+		)}]";
+	}
 	
 	#endregion // Properties
 	
@@ -29,78 +84,17 @@ public class AttributeInspection
 	
 	/// <summary>Generates an array of information for all the attributes given a collection of custom attributes</summary>
 	/// <param name="attrs">The collection of custom attributes to gather all the information from</param>
-	/// <returns>
-	/// Returns the array of attribute information generated from the collection of custom attributes
-	/// </returns>
-	public static AttributeInspection[] GenerateInfoArray(Collection<CustomAttribute> attrs)
+	/// <returns>Returns the array of attribute information generated from the collection of custom attributes</returns>
+	public static List<AttributeInspection> CreateArray(Collection<CustomAttribute> attrs)
 	{
-		AttributeInspection[] results = new AttributeInspection[attrs.Count];
-		int i = 0;
+		List<AttributeInspection> results = new List<AttributeInspection>();
 		
 		foreach(CustomAttribute attr in attrs)
 		{
-			results[i++] = GenerateInfo(attr);
+			results.Add(new AttributeInspection(attr));
 		}
 		
 		return results;
-	}
-	
-	/// <summary>Generates the information for an attribute from the given Mono.Cecil custom attribute class</summary>
-	/// <param name="attr">The attribute to gather the information from</param>
-	/// <returns>Returns the attribute information generated from the custom attribute</returns>
-	public static AttributeInspection GenerateInfo(CustomAttribute attr)
-	{
-		AttributeInspection info = new AttributeInspection();
-		int i = 0;
-		
-		info.TypeInfo = QuickTypeInspection.GenerateInfo(attr.AttributeType);
-		info.ConstructorArgs = new AttributeFieldInfo[attr.ConstructorArguments.Count];
-		foreach(CustomAttributeArgument arg in attr.ConstructorArguments)
-		{
-			info.ConstructorArgs[i] = new AttributeFieldInfo();
-			info.ConstructorArgs[i].typeInfo = QuickTypeInspection.GenerateInfo(arg.Type);
-			info.ConstructorArgs[i].name = attr.Constructor.Parameters[i].Name;
-			info.ConstructorArgs[i].value = (info.ConstructorArgs[i].typeInfo.Name != "bool"
-				? $"{ arg.Value }"
-				: $"{ arg.Value }".ToLower()
-			);
-			i++;
-		}
-		i = 0;
-		info.Properties = new AttributeFieldInfo[
-			attr.Fields.Count +
-			attr.Properties.Count
-		];
-		foreach(CustomAttributeNamedArgument field in attr.Fields)
-		{
-			info.Properties[i] = new AttributeFieldInfo();
-			info.Properties[i].typeInfo = QuickTypeInspection.GenerateInfo(field.Argument.Type);
-			info.Properties[i].name = field.Name;
-			info.Properties[i].value = (info.Properties[i].typeInfo.Name != "bool"
-				? $"{ field.Argument.Value }"
-				: $"{ field.Argument.Value }".ToLower()
-			);
-			i++;
-		}
-		foreach(CustomAttributeNamedArgument property in attr.Properties)
-		{
-			info.Properties[i] = new AttributeFieldInfo();
-			info.Properties[i].typeInfo = QuickTypeInspection.GenerateInfo(property.Argument.Type);
-			info.Properties[i].name = property.Name;
-			info.Properties[i].value = (info.Properties[i].typeInfo.Name != "bool"
-				? $"{ property.Argument.Value }"
-				: $"{ property.Argument.Value }".ToLower()
-			);
-			i++;
-		}
-		info.ParameterDeclaration = string.Join(", ", GetParameterDeclaration(info));
-		info.FullDeclaration = (
-			$"[{ info.TypeInfo.FullName }" +
-			(info.ParameterDeclaration != "" ? $"({ info.ParameterDeclaration })" : "") +
-			"]"
-		);
-		
-		return info;
 	}
 	
 	#endregion // Public Methods
@@ -110,21 +104,25 @@ public class AttributeInspection
 	/// <summary>Gets the parameter declaration string from the given info</summary>
 	/// <param name="info">The information used to retrieve the parameter declaration</param>
 	/// <returns>Returns the parameter declaration as a string</returns>
-	private static string[] GetParameterDeclaration(AttributeInspection info)
+	private List<string> GetParameterDeclaration(AttributeInspection info)
 	{
-		string[] declarations = new string[
-			info.ConstructorArgs.Length +
-			info.Properties.Length
-		];
-		int i = 0;
+		List<string> declarations = new List<string>();
 		
-		foreach(AttributeFieldInfo field in info.ConstructorArgs)
+		foreach(AttributeFieldData field in info.ConstructorArgs)
 		{
-			declarations[i++] = (field.typeInfo.Name == "string" ? $@"""{ field.value }""" : field.value);
+			declarations.Add(field.TypeInfo.Name == "string"
+				? $@"""{field.Value}"""
+				: field.Value
+			);
 		}
-		foreach(AttributeFieldInfo field in info.Properties)
+		foreach(AttributeFieldData field in info.Properties)
 		{
-			declarations[i++] = $"{ field.name } = " + (field.typeInfo.Name == "string" ? $@"""{ field.value }""" : field.value);
+			declarations.Add($"{field.Name} = " + (
+				field.TypeInfo.Name == "string"
+					? $@"""{field.Value}"""
+					: field.Value
+				)
+			);
 		}
 		
 		return declarations;
@@ -135,14 +133,16 @@ public class AttributeInspection
 	#region Types
 	
 	/// <summary>All the information relevant to the attribute's fields</summary>
-	public class AttributeFieldInfo
+	public class AttributeFieldData
 	{
 		/// <summary>The name of the attribute field</summary>
-		public string name;
+		public string Name { get; set; }
+		
 		/// <summary>The value of the attribute field</summary>
-		public string value;
+		public string Value { get; set; }
+		
 		/// <summary>The information of the attribute field's type</summary>
-		public QuickTypeInspection typeInfo;
+		public QuickTypeInspection TypeInfo { get; set; }
 	}
 	
 	#endregion // Types

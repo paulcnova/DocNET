@@ -3,7 +3,7 @@ namespace DocNET.Inspections;
 
 using Mono.Cecil;
 
-internal static class Inspection_Extensions
+internal static class Extensions_Inspection
 {
 	public static TypeReference MakeGenericType(this TypeReference self, params TypeReference[] arguments)
 	{

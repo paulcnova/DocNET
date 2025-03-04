@@ -1,6 +1,8 @@
 
 namespace DocNET.Inspections;
 
+using DocNET.Utilities;
+
 using Mono.Cecil;
 using Mono.Collections.Generic;
 
@@ -13,26 +15,63 @@ public class EventInspection : BaseInspection
 	
 	/// <summary>Gets and sets the name of the event</summary>
 	public string Name { get; set; }
+	
 	/// <summary>Gets and sets if the event is static</summary>
 	public bool IsStatic { get; set; }
+	
 	/// <summary>Gets and sets the accessor of the event (such as internal, private, protected, public)</summary>
 	public string Accessor { get; set; }
+	
 	/// <summary>Gets and sets any modifiers of the event (such as static, virtual, override, etc.)</summary>
 	public string Modifier { get; set; }
+	
 	/// <summary>Gets and sets the attributes associated with the event</summary>
-	public AttributeInspection[] Attributes { get; set; }
+	public List<AttributeInspection> Attributes { get; set; } = new List<AttributeInspection>();
+	
 	/// <summary>Gets and sets the information of the event's type</summary>
 	public QuickTypeInspection TypeInfo { get; set; }
+	
 	/// <summary>Gets and sets the type the event is implemented in</summary>
 	public QuickTypeInspection ImplementedType { get; set; }
+	
 	/// <summary>Gets and sets the information of the event's adding method</summary>
 	public MethodInspection Adder { get; set; }
+	
 	/// <summary>Gets and sets the information of the event's removing method</summary>
 	public MethodInspection Remover { get; set; }
+	
 	/// <summary>Gets and sets the declaration of the event as it would be found in the code</summary>
 	public string FullDeclaration { get; set; }
+	
 	/// <summary>Set to true to delete the event when looking to be removed</summary>
-	internal bool ShouldDelete = false;
+	public bool ShouldIgnore { get; private set; } = false;
+	
+	/// <summary>Generates an event information from the given event definition</summary>
+	/// <param name="ev">The event definition to gather information from</param>
+	public EventInspection(EventDefinition ev, bool ignorePrivate = true)
+	{
+		this.Name = ev.Name;
+		this.TypeInfo = new QuickTypeData(ev.EventType);
+		this.ImplementedType = new QuickTypeData(ev.DeclaringType);
+		this.Adder = new MethodData(ev.AddMethod);
+		this.Remover = new MethodData(ev.RemoveMethod);
+		
+		if(ignorePrivate && Utility.GetAccessorId(this.Adder.Accessor, ignorePrivate) == 0)
+		{
+			this.ShouldIgnore = true;
+			return;
+		}
+		
+		this.Accessor = this.Adder.Accessor;
+		this.Modifier = this.Adder.Modifier;
+		this.IsStatic = this.Adder.IsStatic;
+		this.Attributes = AttributeInspection.CreateArray(ev.CustomAttributes);
+		this.FullDeclaration = $"{this.Accessor} {(
+			this.Modifier != ""
+				? $"{this.Modifier} "
+				: ""
+		)}{this.TypeInfo.Name} {this.Name}";
+	}
 	
 	#endregion // Properties
 	
@@ -43,30 +82,30 @@ public class EventInspection : BaseInspection
 	/// <param name="recursive">Set to true to recursively look into the base type of the type</param>
 	/// <param name="isStatic">Set to true to look for only static members</param>
 	/// <returns>Returns the array of event informations</returns>
-	public static EventInspection[] GenerateInfoArray(TypeDefinition type, bool recursive, bool isStatic)
+	public static List<EventInspection> CreateArray(TypeDefinition type, bool recursive, bool isStatic, bool ignorePrivate = true)
 	{
 		if(!recursive)
 		{
-			EventInspection[] results = GenerateInfoArray(type.Events);
+			List<EventInspection> results = CreateArray(type.Events, ignorePrivate);
 			
-			RemoveUnwanted(ref results, isStatic, true);
+			RemoveUnwanted(results, isStatic, true);
 			
 			return results;
 		}
 		
 		List<EventInspection> events = new List<EventInspection>();
-		EventInspection[] temp;
+		List<EventInspection> temp;
 		TypeDefinition currType = type;
 		TypeReference baseType;
 		bool isOriginal = true;
 		
 		while(currType != null)
 		{
-			temp = GenerateInfoArray(currType.Events);
-			RemoveUnwanted(ref temp, isStatic, isOriginal);
+			temp = CreateArray(currType.Events, ignorePrivate);
+			RemoveUnwanted(temp, isStatic, isOriginal);
 			if(currType != type)
 			{
-				RemoveDuplicates(ref temp, events);
+				RemoveDuplicates(temp, events);
 			}
 			events.AddRange(temp);
 			baseType = currType.BaseType;
@@ -77,59 +116,25 @@ public class EventInspection : BaseInspection
 			isOriginal = false;
 		}
 		
-		return events.ToArray();
+		return events;
 	}
 	
 	/// <summary>Generates an array of event informations from the given collection of event definitions</summary>
 	/// <param name="events">The collection of event definitions</param>
 	/// <returns>Returns an array of event informations generated</returns>
-	public static EventInspection[] GenerateInfoArray(Collection<EventDefinition> events)
+	public static List<EventInspection> CreateArray(Collection<EventDefinition> events, bool ignorePrivate = true)
 	{
 		List<EventInspection> results = new List<EventInspection>();
-		EventInspection info;
 		
 		foreach(EventDefinition ev in events)
 		{
-			info = GenerateInfo(ev);
-			if(info.ShouldDelete)
-			{
-				continue;
-			}
+			EventInspection info = new EventInspection(ev, ignorePrivate);
+			
+			if(info.ShouldIgnore) { continue; }
 			results.Add(info);
 		}
 		
-		return results.ToArray();
-	}
-	
-	/// <summary>Generates an event information from the given event definition</summary>
-	/// <param name="ev">The event definition to gather information from</param>
-	/// <returns>Returns the event information generated</returns>
-	public static EventInspection GenerateInfo(EventDefinition ev)
-	{
-		EventInspection info = new EventInspection();
-		
-		info.Name = ev.Name;
-		info.TypeInfo = QuickTypeInspection.GenerateInfo(ev.EventType);
-		info.ImplementedType = QuickTypeInspection.GenerateInfo(ev.DeclaringType);
-		info.Adder = MethodInspection.GenerateInfo(ev.AddMethod);
-		info.Remover = MethodInspection.GenerateInfo(ev.RemoveMethod);
-		info.Accessor = info.Adder.Accessor;
-		info.Modifier = info.Adder.Modifier;
-		info.IsStatic = info.Adder.IsStatic;
-		info.Attributes = AttributeInspection.GenerateInfoArray(ev.CustomAttributes);
-		info.FullDeclaration = (
-			info.Accessor + " " +
-			(info.Modifier != "" ? info.Modifier + " " : "") +
-			info.TypeInfo.Name + " " +
-			info.Name
-		);
-		
-		if(Inspections.TypeInspection.ignorePrivate && PropertyInspection.GetAccessorId(info.Accessor) == 0)
-		{
-			info.ShouldDelete = true;
-		}
-		
-		return info;
+		return results;
 	}
 	
 	#endregion // Public Methods
@@ -137,16 +142,14 @@ public class EventInspection : BaseInspection
 	#region Private Methods
 	
 	/// <summary>Removes any unwanted elements from the array of event informations</summary>
-	/// <param name="temp">The array of event informations to remove from</param>
+	/// <param name="events">The array of event informations to remove from</param>
 	/// <param name="isStatic">Set to true if non-static members should be removed</param>
 	/// <param name="isOriginal">Set to false if it's a base type, this will remove any private members</param>
-	public static void RemoveUnwanted(ref EventInspection[] temp, bool isStatic, bool isOriginal)
+	public static void RemoveUnwanted(List<EventInspection> events, bool isStatic, bool isOriginal)
 	{
-		List<EventInspection> events = new List<EventInspection>(temp);
-		
-		for(int i = temp.Length - 1; i >= 0; i--)
+		for(int i = events.Count - 1; i >= 0; i--)
 		{
-			if(events[i].ShouldDelete)
+			if(events[i].ShouldIgnore)
 			{
 				events.RemoveAt(i);
 			}
@@ -159,18 +162,14 @@ public class EventInspection : BaseInspection
 				events.RemoveAt(i);
 			}
 		}
-		
-		temp = events.ToArray();
 	}
 	
 	/// <summary>Removes the duplicates from the given array of events</summary>
-	/// <param name="temp">The array of event informations that will be removed from</param>
+	/// <param name="events">The array of event informations that will be removed from</param>
 	/// <param name="listEvents">The list of recursive-ordered event informations to determine if there is any duplicates</param>
-	public static void RemoveDuplicates(ref EventInspection[] temp, List<EventInspection> listEvents)
+	public static void RemoveDuplicates(List<EventInspection> events, List<EventInspection> listEvents)
 	{
-		List<EventInspection> events = new List<EventInspection>(temp);
-		
-		for(int i = temp.Length - 1; i >= 0; i--)
+		for(int i = events.Count - 1; i >= 0; i--)
 		{
 			foreach(EventInspection ev in listEvents)
 			{
@@ -181,8 +180,6 @@ public class EventInspection : BaseInspection
 				}
 			}
 		}
-		
-		temp = events.ToArray();
 	}
 	
 	#endregion // Private Methods

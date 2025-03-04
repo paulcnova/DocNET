@@ -9,7 +9,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to generic parameters</summary>
-public class GenericParameterData
+public class GenericParameterInspection
 {
 	#region Properties
 	
@@ -20,13 +20,13 @@ public class GenericParameterData
 	public string Name { get; set; } = "";
 	
 	/// <summary>The list of constraints of what type the generic parameter should be</summary>
-	public List<QuickTypeData> Constraints { get; set; } = new List<QuickTypeData>();
+	public List<QuickTypeInspection> Constraints { get; set; } = new List<QuickTypeInspection>();
 	
 	/// <summary>A constructor meant for the class to be filled out later.</summary>
-	public GenericParameterData() {}
+	public GenericParameterInspection() {}
 	
 	/// <summary>A constructor to store the data for the generic parameter</summary>
-	public GenericParameterData(GenericParameter parameter)
+	public GenericParameterInspection(GenericParameter parameter)
 	{
 		this.UnlocalizedName = Utility.UnlocalizeName(parameter.Name);
 		this.Name = Utility.MakeNameFriendly(parameter.Name);
@@ -43,13 +43,13 @@ public class GenericParameterData
 	/// <summary>Generates an array of generic parameter informations from the given collection generic parameter</summary>
 	/// <param name="generics">The collection of generic parameters to look into</param>
 	/// <returns>Returns an array of generic parameter informations</returns>
-	public static List<GenericParameterData> CreateArray(Collection<GenericParameter> generics)
+	public static List<GenericParameterInspection> CreateArray(Collection<GenericParameter> generics)
 	{
-		List<GenericParameterData> array = new List<GenericParameterData>();
+		List<GenericParameterInspection> array = new List<GenericParameterInspection>();
 		
 		foreach(GenericParameter parameter in generics)
 		{
-			array.Add(new GenericParameterData(parameter));
+			array.Add(new GenericParameterInspection(parameter));
 		}
 		
 		return array;

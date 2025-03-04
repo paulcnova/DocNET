@@ -1,0 +1,5 @@
+<Project>
+  <Target Name="TEMP" AfterTargets="Build">
+    <Message Importance="High" Text="==> $(OutDir)$(AssemblyName)$(AssemblyExtension).dll | $(DocumentationFile)"/>
+  </Target>
+</Project>

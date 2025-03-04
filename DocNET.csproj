@@ -10,8 +10,8 @@
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <Compile Remove="Source/**/*.cs"/>
+    <Compile Remove="Templates/**/*.cs"/>
+    <Compile Remove="Inspector/**/*.cs"/>
   </ItemGroup>
-  <Target Name="TEMP" AfterTargets="Build">
-    <Message Importance="High" Text="==> $(OutDir)$(AssemblyName)$(AssemblyExtension).dll | $(DocumentationFile)"/>
-  </Target>
+  <Import Project="Documentation.props"/>
 </Project>

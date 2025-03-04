@@ -21,7 +21,7 @@ public class TypeList
 	/// <summary>Generates a type list</summary>
 	/// <param name="assemblies">The assemblies to look into</param>
 	/// <returns>Returns the type list generated</returns>
-	public static TypeList GenerateList(params string[] assemblies)
+	public static TypeList Create(bool ignorePrivate, params string[] assemblies)
 	{
 		TypeList list = new TypeList();
 		
@@ -44,7 +44,7 @@ public class TypeList
 					{
 						continue;
 					}
-					if(TypeInspection.ignorePrivate)
+					if(ignorePrivate)
 					{
 						if(type.IsNotPublic) { continue; }
 						if(type.IsNestedAssembly || type.IsNestedPrivate) { continue; }

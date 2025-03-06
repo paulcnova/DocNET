@@ -54,7 +54,7 @@ public class ParameterInspection
 		
 		this.IsOptional = parameter.IsOptional;
 		this.DefaultValue = $"{parameter.Constant}";
-		this.GenericParameterDeclarations = Utility.GetGenericParametersAsStrings(parameter.ParameterType.FullName);
+		this.GenericParameterDeclarations = InspectionUtility.GetGenericParametersAsStrings(parameter.ParameterType.FullName);
 		this.FullDeclaration = this.GetFullDeclaration();
 	}
 	

@@ -16,5 +16,8 @@ public abstract class BaseInfo<T>
 	/// <summary>Gets the XML content for this piece of code.</summary>
 	public XmlFormat Xml { get; protected set; }
 	
+	/// <summary>Gets if this class should be ignored and discarded.</summary>
+	public bool ShouldIgnore { get; protected set; }
+	
 	#endregion // Properties
 }

@@ -1,6 +1,8 @@
 
 namespace DocNET.Utilities;
 
+using DocNET.Information;
+
 /// <summary>An interface for a utility set to compile from XML to whatever the utility is built for.</summary>
 public interface IUtilitySet
 {
@@ -24,6 +26,8 @@ public interface IUtilitySet
 	/// <param name="linkName">The name the user will see on the link.</param>
 	/// <returns>Returns a hyperlink to the type.</returns>
 	string CreateExternalLink(string typePath, string linkName) => "";
+	
+	void RenderAndSaveToFile(string output, string typePath, TypeInfo info);
 	
 	#endregion // Public Methods
 }

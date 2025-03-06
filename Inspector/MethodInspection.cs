@@ -257,7 +257,7 @@ public partial class MethodInspection : BaseInspection
 		
 		if(isGeneric)
 		{
-			info.Name = Utility.RemoveNamespaceFromType(Utility.MakeNameFriendly(info.FullName));
+			info.Name = InspectionUtility.RemoveNamespaceFromType(InspectionUtility.MakeNameFriendly(info.FullName));
 		}
 		
 		if(info.FullName == info.Name)
@@ -325,7 +325,7 @@ public partial class MethodInspection : BaseInspection
 			
 			temp.UnlocalizedName = typeInfo.GenericParameters[i].UnlocalizedName;
 			temp.FullName = typeInfo.GenericParameters[i].Name;
-			temp.Name = Utility.RemoveNamespaceFromType(Utility.MakeNameFriendly(temp.FullName));
+			temp.Name = InspectionUtility.RemoveNamespaceFromType(InspectionUtility.MakeNameFriendly(temp.FullName));
 			temp.NamespaceName = temp.UnlocalizedName.Contains('.')
 				? InspectionRegex.NamespaceName().Replace(temp.UnlocalizedName, "$1")
 				: "";
@@ -341,7 +341,7 @@ public partial class MethodInspection : BaseInspection
 				parameter.TypeInfo.GenericParameters = GenericParameterInspection.CreateArray(
 					methodRef.Resolve().DeclaringType.GenericParameters
 				);
-				parameter.GenericParameterDeclarations = Utility.GetGenericParametersAsStrings(parameter.TypeInfo.FullName);
+				parameter.GenericParameterDeclarations = InspectionUtility.GetGenericParametersAsStrings(parameter.TypeInfo.FullName);
 				parameter.FullDeclaration = parameter.GetFullDeclaration();
 			}
 		}
@@ -364,7 +364,7 @@ public partial class MethodInspection : BaseInspection
 			: "";
 		this.ParameterDeclaration = string.Join(", ", this.GetParameterDeclaration());
 		this.FullDeclaration = $"{this.Declaration}{this.GenericDeclaration}({this.ParameterDeclaration})";
-		this.FullDeclaration += Utility.GetGenericParameterConstraints(this.GenericParameters);
+		this.FullDeclaration += InspectionUtility.GetGenericParameterConstraints(this.GenericParameters);
 	}
 	
 	private void Construct(MethodDefinition method, bool ignorePrivate = true)
@@ -379,7 +379,7 @@ public partial class MethodInspection : BaseInspection
 		else if(method.IsFamily) { this.Accessor = "protected"; }
 		else if(method.IsPublic) { this.Accessor = "public"; }
 		else { this.Accessor = "private"; }
-		if(ignorePrivate && Utility.GetAccessorId(this.Accessor, ignorePrivate) == 0)
+		if(ignorePrivate && InspectionUtility.GetAccessorId(this.Accessor, ignorePrivate) == 0)
 		{
 			this.ShouldIgnore = true;
 			return;
@@ -433,7 +433,7 @@ public partial class MethodInspection : BaseInspection
 		else if(this.IsVirtual) { this.Modifier = "virtual"; }
 		else { this.Modifier = ""; }
 		
-		this.IsExtension = Utility.HasExtensionAttribute(this.Attributes);
+		this.IsExtension = InspectionUtility.HasExtensionAttribute(this.Attributes);
 		this.Declaration = $"{this.Accessor} {(
 			this.Modifier != ""
 				? $"{this.Modifier} "
@@ -456,7 +456,7 @@ public partial class MethodInspection : BaseInspection
 			this.ParameterDeclaration = $"this {this.ParameterDeclaration}";
 		}
 		this.FullDeclaration = $"{this.Declaration}{this.GenericDeclaration}({this.ParameterDeclaration})";
-		this.FullDeclaration += Utility.GetGenericParameterConstraints(this.GenericParameters);
+		this.FullDeclaration += InspectionUtility.GetGenericParameterConstraints(this.GenericParameters);
 	}
 	
 	/// <summary>Removes any unwanted methods from the given types of booleans</summary>

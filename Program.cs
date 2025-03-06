@@ -23,21 +23,24 @@ public static class Program
 		bool inspectSpecific = false;
 		string assemblies = "";
 		string inspect = "";
-		string output = "default";
-		string template = "html";
+		string output = "bin/docs";
+		string input = "bin/Debug/net8.0/DocNET.dll";
+		string inputXml = "bin/Debug/net8.0/DocNET.xml";
+		string template = "xml";
+		bool ignorePrivate = true;
 		
 		for(int i = 0; i < args.Length; ++i)
 		{
-			System.Console.WriteLine(args[i]);
 			switch(args[i].ToLower())
 			{
 				case "-h": case "--help": isHelp = true; break;
-				case "-o": case "--out": output = args[++i]; break;
-				case "-t": case "--template": template = args[++i]; break;
 				case "--list-types": listTypes = true; break;
 				case "--list-templates": listTemplates = true; break;
-				case "-a": case "--assemblies": assemblies = args[++i]; break;
-				case "-i": case "--inspect": inspectSpecific = true; inspect = args[++i]; break;
+				
+				// case "-o": case "--out": output = args[++i]; break;
+				// case "-t": case "--template": template = args[++i]; break;
+				// case "-a": case "--assemblies": assemblies = args[++i]; break;
+				// case "-i": case "--inspect": inspectSpecific = true; inspect = args[++i]; break;
 			}
 		}
 		
@@ -46,8 +49,8 @@ public static class Program
 		{
 			assemblies = string.Join(",", System.IO.Directory.GetFiles($"{System.Environment.CurrentDirectory}/bin/Debug/net8.0", "*.dll"));
 		}
-		inspect = inspect.Replace('-', '`');
-		System.Console.WriteLine(inspect);
+		// inspect = inspect.Replace('-', '`');
+		// System.Console.WriteLine(inspect);
 		
 		if(isHelp)
 		{
@@ -61,17 +64,50 @@ public static class Program
 		}
 		if(listTypes)
 		{
-			ListTypes(assemblies.Split(","));
+			ListTypes(input);
+			// ListTypes(assemblies.Split(","));
 			return;
 		}
-		if(inspectSpecific)
+		// if(inspectSpecific)
+		// {
+		// 	System.Console.WriteLine(assemblies);
+		// 	InspectSpecific(inspect, assemblies.Split(","));
+		// 	return;
+		// }
+		
+		// System.Console.WriteLine($"Output: {output}; Template: {template}");
+		
+		GenerateDocumentation(ignorePrivate, inputXml, output, template, input.Split(','), assemblies.Split(','));
+	}
+	
+	public static void GenerateDocumentation(bool ignorePrivate, string inputXml, string output, string template, string[] inputs, string[] assemblies)
+	{
+		Utility.SetTemplate(template);
+		
+		inputXml = Utility.MakeAbsolute(inputXml);
+		output = Utility.MakeAbsolute(output);
+		for(int i = 0; i < inputs.Length; ++i)
 		{
-			System.Console.WriteLine(assemblies);
-			InspectSpecific(inspect, assemblies.Split(","));
-			return;
+			inputs[i] = Utility.MakeAbsolute(inputs[i]);
+		}
+		for(int i = 0; i < assemblies.Length; ++i)
+		{
+			assemblies[i] = Utility.MakeAbsolute(assemblies[i]);
 		}
 		
-		System.Console.WriteLine($"Output: {output}; Template: {template}");
+		TypeList list = TypeList.Create(ignorePrivate, inputs);
+		
+		foreach(KeyValuePair<string, List<string>> kv in list.Types)
+		{
+			foreach(string typePath in kv.Value)
+			{
+				TypeInfo info = new TypeInfo(typePath, assemblies, inputXml, ignorePrivate);
+				
+				if(info.ShouldIgnore) { continue; }
+				
+				Utility.RenderAndSaveToFile(output, typePath, info);
+			}
+		}
 	}
 	
 	public static void InspectSpecific(string typePath, string[] assemblies)
@@ -85,7 +121,7 @@ public static class Program
 		TypeInfo info = new TypeInfo(typePath, assemblies, $"{System.Environment.CurrentDirectory}/bin/Debug/net8.0/DocNET.xml", false);
 	}
 	
-	public static void ListTypes(string[] assemblies)
+	public static void ListTypes(params string[] assemblies)
 	{
 		TypeList list = TypeList.Create(true, assemblies);
 		
@@ -137,5 +173,6 @@ public static class Program
 		System.Console.WriteLine("--list-templates                          Lists all the templates available.");
 		System.Console.WriteLine("--assemblies <assembly1,assembly2> (-a)   Provides all the assemblies to be used to inspect. If left empty, it will search the .csproj file.");
 	}
+	
 	#endregion // Public Methods
 }

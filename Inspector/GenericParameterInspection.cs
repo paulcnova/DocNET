@@ -28,8 +28,8 @@ public class GenericParameterInspection
 	/// <summary>A constructor to store the data for the generic parameter</summary>
 	public GenericParameterInspection(GenericParameter parameter)
 	{
-		this.UnlocalizedName = Utility.UnlocalizeName(parameter.Name);
-		this.Name = Utility.MakeNameFriendly(parameter.Name);
+		this.UnlocalizedName = InspectionUtility.UnlocalizeName(parameter.Name);
+		this.Name = InspectionUtility.MakeNameFriendly(parameter.Name);
 		foreach(GenericParameterConstraint constraint in parameter.Constraints)
 		{
 			this.Constraints.Add(new QuickTypeInspection(constraint.ConstraintType));

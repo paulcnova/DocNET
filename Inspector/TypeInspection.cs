@@ -74,7 +74,7 @@ public class TypeInspection
 		else if(type.IsNestedPrivate) { this.Accessor = "private"; }
 		else { this.Accessor = "internal"; }
 		
-		if(ignorePrivate && Utility.GetAccessorId(this.Accessor, ignorePrivate) == 0)
+		if(ignorePrivate && InspectionUtility.GetAccessorId(this.Accessor, ignorePrivate) == 0)
 		{
 			this.ShouldIgnore = true;
 			return;
@@ -228,7 +228,7 @@ public class TypeInspection
 			
 			if(invoke != null)
 			{
-				return $"{this.Declaration}({invoke.ParameterDeclaration}){Utility.GetGenericParameterConstraints(this.Info.GenericParameters)}";
+				return $"{this.Declaration}({invoke.ParameterDeclaration}){InspectionUtility.GetGenericParameterConstraints(this.Info.GenericParameters)}";
 			}
 		}
 		
@@ -256,7 +256,7 @@ public class TypeInspection
 			{
 				decl += $"{this.Interfaces[i].Name}{(i != this.Interfaces.Count - 1 ? ", " : "")}";
 			}
-			decl += Utility.GetGenericParameterConstraints(this.Info.GenericParameters);
+			decl += InspectionUtility.GetGenericParameterConstraints(this.Info.GenericParameters);
 		}
 		
 		return decl;

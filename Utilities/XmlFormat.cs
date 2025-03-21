@@ -58,6 +58,15 @@ public partial class XmlFormat
 	
 	#region Public Methods
 	
+	public static XmlDocument Find(string xmlFile)
+	{
+		XmlDocument document = new XmlDocument();
+		
+		document.Load(xmlFile);
+		
+		return document;
+	}
+	
 	public static XmlFormat Search(string typePath, string xmlFile)
 	{
 		System.Console.WriteLine(typePath);
@@ -65,6 +74,11 @@ public partial class XmlFormat
 		
 		document.Load(xmlFile);
 		
+		return Search(typePath, document);
+	}
+	
+	public static XmlFormat Search(string typePath, XmlDocument document)
+	{
 		foreach(XmlElement elem in document["doc"]["members"])
 		{
 			if(elem.HasAttribute("name") && elem.GetAttribute("name") == typePath)

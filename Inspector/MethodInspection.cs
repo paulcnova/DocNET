@@ -203,6 +203,38 @@ public partial class MethodInspection : BaseInspection
 		return results;
 	}
 	
+	public string GetTypePath()
+	{
+		string name = this.Name;
+		
+		if(this.IsConstructor) { name = "#ctor"; }
+		if(this.IsConversionOperator)
+		{
+			name = this.Modifier.Contains("implicit")
+				? "op_Implicit"
+				: "op_Explicit";
+		}
+		else if(this.IsOperator && !name.StartsWith("op_"))
+		{
+			name = $"op_{name}";
+		}
+		
+		string typePath = this.ImplementedType.GetTypePath(name);
+		List<string> parameters = new List<string>();
+		
+		if(this.GenericParameters.Count > 0)
+		{
+			typePath += $"``{this.GenericParameters.Count}";
+		}
+		foreach(ParameterInspection parameter in this.Parameters)
+		{
+			string paramResult = parameter.TypeInfo.NonInstancedFullName;
+			string temp;
+			
+			for(int i = 0)
+		}
+	}
+	
 	/// <summary>Gets the generic instanced type information</summary>
 	/// <param name="hash">The hashtable to change the generics into the instanced generics</param>
 	/// <param name="info">The information of the type to look into, should be the original</param>

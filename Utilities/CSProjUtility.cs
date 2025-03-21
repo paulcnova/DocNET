@@ -30,17 +30,19 @@ public static class CSProjUtility
 			{
 				FileName = "dotnet",
 				Arguments = $"build {Settings.CSProjectFile}",
-				RedirectStandardOutput = true,
-				RedirectStandardError = true,
-				CreateNoWindow = true,
-				UseShellExecute = false,
+				// RedirectStandardOutput = true,
+				// RedirectStandardError = true,
+				// CreateNoWindow = true,
+				// UseShellExecute = false,
+				WorkingDirectory = Settings.CWD,
 			},
 		};
 		
 		System.Console.WriteLine("Compiling...");
 		compiler.Start();
+		compiler.OutputDataReceived+= (sender, ev) => System.Console.WriteLine(ev.Data);
 		compiler.WaitForExit();
-		System.Console.WriteLine(compiler.StandardOutput.ReadToEnd());
+		System.Console.WriteLine("Done.");
 	}
 	
 	public static List<string> GetProjectsList()
@@ -75,7 +77,7 @@ public static class CSProjUtility
 		return document;
 	}
 	
-	public static void ToggleCommentDocumentation(string projectName, bool enable)
+	public static bool ToggleCommentDocumentation(string projectName, bool enable)
 	{
 		XmlDocument document = GetCSProject(projectName);
 		XmlElement propertyGroup = document["Project"]["PropertyGroup"];
@@ -94,6 +96,7 @@ public static class CSProjUtility
 		}
 		
 		Save(document, projectName);
+		return gdNode != null;
 	}
 	
 	#endregion // Public Methods

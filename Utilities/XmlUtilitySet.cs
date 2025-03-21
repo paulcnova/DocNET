@@ -10,14 +10,36 @@ public class XmlUtilitySet : IUtilitySet
 {
 	#region Public Methods
 	
+	/// <inheritdoc/>
 	public void ProcessType(string fileName, TypeInfo info)
 	{
-		Utility.EnsurePath(fileName.Substring(0, fileName.LastIndexOf('/')));
+		int index = System.Math.Max(fileName.LastIndexOf('/'), fileName.LastIndexOf('\\'));
+		
+		Utility.EnsurePath(fileName.Substring(0, index));
 		
 		XmlDocument document = new XmlDocument();
-		XmlElement root = document.CreateElement("documentation");
+		XmlElement root = document.QuickCreate("documentation", new XmlElement[] {
+			document.QuickCreate("header", new XmlElement[] {
+				document.QuickCreate("assembly", content: $"{info.Inspection.AssemblyName}.dll"),
+				document.QuickCreate("object-type", content: info.Inspection.ObjectType),
+				document.QuickCreate("name", content: info.Inspection.Info.Name),
+				document.QuickCreate("namespace", content: info.Inspection.Info.NamespaceName),
+				document.QuickCreate("full-declaration", content: info.Inspection.FullDeclaration),
+				document.QuickCreate("declaration", content: info.Inspection.Declaration),
+			}),
+		},
+		new (string, string)[] {
+			("type", info.Inspection.Info.UnlocalizedName)
+		});
 		
-		root.SetAttribute("type", info.Inspection.Info.UnlocalizedName);
+		if(info.Inspection.BaseType != null && !string.IsNullOrEmpty(info.Inspection.BaseType.FullName))
+		{
+			root["header"].AppendChild(document.QuickCreate("base-type", content: info.Inspection.BaseType.FullName));
+		}
+		if(info.Inspection.HasDeclaringType)
+		{
+			root["header"].AppendChild(document.QuickCreate("declaring-type", content: info.Inspection.DeclaringType.FullName));
+		}
 		
 		document.AppendChild(root);
 		document.Save(fileName);

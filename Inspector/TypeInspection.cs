@@ -144,6 +144,63 @@ public class TypeInspection
 	
 	#region Public Methods
 	
+	public static TypeDefinition SearchDefinition(string typePath, string[] assemblies, bool ignorePrivate = true)
+	{
+		foreach(string assembly in assemblies)
+		{
+			AssemblyDefinition asm = AssemblyDefinition.ReadAssembly(assembly);
+			
+			foreach(ModuleDefinition module in asm.Modules)
+			{
+				TypeDefinition type = module.GetType(typePath);
+				
+				if(type != null)
+				{
+					return type;
+				}
+			}
+		}
+		try
+		{
+			System.Type sysType = System.Type.GetType(typePath, true);
+			AssemblyDefinition _asm = AssemblyDefinition.ReadAssembly(
+				sysType.Assembly.Location.Replace("file:///", "")
+			);
+			
+			foreach(ModuleDefinition _module in _asm.Modules)
+			{
+				TypeDefinition _type = _module.GetType(typePath);
+				
+				if(_type != null)
+				{
+					return _type;
+				}
+			}
+		}
+		catch
+		{
+			foreach(string assembly in assemblies)
+			{
+				AssemblyDefinition asm = AssemblyDefinition.ReadAssembly(assembly);
+				
+				foreach(ModuleDefinition module in asm.Modules)
+				{
+					foreach(TypeDefinition type in module.GetTypes())
+					{
+						string strType = type.FullName.Replace("/", ".");
+						
+						if(typePath == strType)
+						{
+							return type;
+						}
+					}
+				}
+			}
+		}
+		
+		return null;
+	}
+	
 	public static TypeInspection Search(string typePath, string[] assemblies, bool ignorePrivate = true)
 	{
 		foreach(string assembly in assemblies)

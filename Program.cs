@@ -40,9 +40,14 @@ public static class Program
 			Settings.ProjectName = projectList[0];
 		}
 		
-		CSProjUtility.ToggleCommentDocumentation(Settings.ProjectName, true);
+		bool isEnabled = CSProjUtility.ToggleCommentDocumentation(Settings.ProjectName, true);
+		#if !DEBUG
 		CSProjUtility.CompileProject();
-		CSProjUtility.ToggleCommentDocumentation(Settings.ProjectName, false);
+		#endif
+		if(!isEnabled)
+		{
+			CSProjUtility.ToggleCommentDocumentation(Settings.ProjectName, false);
+		}
 		
 		string binPath = CSProjUtility.GetGeneratedBinDirectory(Settings.ProjectName);
 		string[] assemblies = FileUtility.GetAllBinaries(binPath);
@@ -54,7 +59,7 @@ public static class Program
 		foreach(string type in types)
 		{
 			TypeInfo info = new TypeInfo(type, assemblies, xmlFile, Settings.IgnorePrivate);
-			string savePath = Path.Combine(Settings.Output, $"{type}.xml");
+			string savePath = Path.Combine(Settings.Output, $"{type.Replace('`', '-')}.xml");
 			
 			Settings.UtilitySet.ProcessType(savePath, info);
 			System.Console.WriteLine(type);

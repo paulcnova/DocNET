@@ -23,6 +23,7 @@ public static class Program
 				case "-h": case "--help": Utility.DisplayHelp(); return;
 				case "--list-templates": Utility.DisplayTemplates(); return;
 				case "--list-projects": Utility.DisplayProjects(); return;
+				case "-t": case "--template": Settings.FindTemplate(args[++i]); break;
 				case "-d": case "--directory": Settings.CWD = args[++i]; break;
 			}
 		}
@@ -54,7 +55,6 @@ public static class Program
 		TypeList list = TypeList.Create(Settings.IgnorePrivate, assemblies);
 		string xmlFile = $"{binPath}/{Settings.ProjectName}.xml";
 		List<string> types = list.Types[$"{Settings.ProjectName}.dll"];
-		
 		
 		foreach(string type in types)
 		{

@@ -77,6 +77,12 @@ public partial class QuickTypeInspection
 	
 	#endregion // Properties
 	
+	#region Public Methods
+	
+	public string GetTypePath(string name) => $"{this.UnlocalizedName}.{name}";
+	
+	#endregion // Public Methods
+	
 	#region Private Methods
 	
 	/// <summary>

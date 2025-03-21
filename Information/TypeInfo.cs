@@ -20,6 +20,10 @@ public class TypeInfo : BaseInfo<TypeInspection>
 		
 		XmlDocument document = XmlFormat.Find(xmlFile);
 		
+		foreach(MethodInspection method in MethodInspection.CreateArray(TypeInspection.SearchDefinition(typePath, assemblies, ignorePrivate), true, false, ignorePrivate: ignorePrivate))
+		{
+			this.Methods.Add(new MethodInfo(method, document));
+		}
 		foreach(MethodInspection method in MethodInspection.CreateArray(TypeInspection.SearchDefinition(typePath, assemblies, ignorePrivate), true, true, ignorePrivate: ignorePrivate))
 		{
 			this.Methods.Add(new MethodInfo(method, document));

@@ -3,6 +3,7 @@ namespace DocNET.Utilities;
 
 using DocNET.Information;
 
+using System.Collections.Generic;
 using System.Xml;
 
 /// <summary>A default utility set used by DocNET, utility set is meant for static html</summary>
@@ -27,6 +28,7 @@ public class XmlUtilitySet : IUtilitySet
 				document.QuickCreate("full-declaration", content: info.Inspection.FullDeclaration),
 				document.QuickCreate("declaration", content: info.Inspection.Declaration),
 			}),
+			document.QuickCreate("methods", this.ProcessMethods(document, info))
 		},
 		new (string, string)[] {
 			("type", info.Inspection.Info.UnlocalizedName)
@@ -43,6 +45,22 @@ public class XmlUtilitySet : IUtilitySet
 		
 		document.AppendChild(root);
 		document.Save(fileName);
+	}
+	
+	public XmlElement[] ProcessMethods(XmlDocument document, TypeInfo info)
+	{
+		List<XmlElement> elements = new List<XmlElement>();
+		
+		foreach(MethodInfo method in info.Methods)
+		{
+			elements.Add(document.QuickCreate("method", new XmlElement[] {
+				
+			}, new (string, string)[] {
+				("name", method.Inspection.Name)
+			}));
+		}
+		
+		return elements.ToArray();
 	}
 	
 	// /// <inheritdoc/>

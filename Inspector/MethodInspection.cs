@@ -231,8 +231,45 @@ public partial class MethodInspection : BaseInspection
 			string paramResult = parameter.TypeInfo.NonInstancedFullName;
 			string temp;
 			
-			for(int i = 0)
+			for(int i = 0; i < this.ImplementedType.GenericParameters.Count; ++i)
+			{
+				temp = this.ImplementedType.GenericParameters[i].UnlocalizedName;
+				
+				if(paramResult == temp)
+				{
+					paramResult = $"`{i}";
+					break;
+				}
+				paramResult = Regex.Replace(paramResult, $@"`([\(<,]){temp}([\)\[>,])", $"$1`{i}$2");
+				paramResult = Regex.Replace(paramResult, $@"{temp}((?:\[,*\])+)", $"`{i}$1");
+			}
+			for(int i = 0; i < this.GenericParameters.Count; ++i)
+			{
+				temp = this.GenericParameters[i].UnlocalizedName;
+				if(paramResult == temp)
+				{
+					paramResult = $"``{i}";
+					break;
+				}
+				paramResult = Regex.Replace(paramResult, $@"([\(<,]){temp}([\)\[>,])", $"$1``{i}$2");
+				paramResult = Regex.Replace(paramResult, $@"{temp}((?:\[,*\])+)", $"``{i}$1");
+			}
+			paramResult = Regex.Replace(Regex.Replace(paramResult, "<", "{"), ">", "}");
+			if(!string.IsNullOrEmpty(parameter.Modifier) && parameter.Modifier != "params") { paramResult += "@"; }
+			parameters.Add(paramResult);
 		}
+		
+		if(parameters.Count > 0)
+		{
+			string methodPath = $"{typePath}({string.Join(',', parameters)})";
+			
+			if(this.IsConversionOperator)
+			{
+				return $"{methodPath}~{this.ReturnType.NonInstancedFullName}";
+			}
+			return methodPath;
+		}
+		return typePath;
 	}
 	
 	/// <summary>Gets the generic instanced type information</summary>

@@ -5,6 +5,7 @@ using Mono.Cecil;
 
 internal static class Extensions_Inspection
 {
+	/// <summary>Hello</summary>
 	public static TypeReference MakeGenericType(this TypeReference self, params TypeReference[] arguments)
 	{
 		if(self.GenericParameters.Count != arguments.Length)

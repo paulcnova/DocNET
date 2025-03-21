@@ -13,7 +13,7 @@ public class MethodInfo : BaseInfo<MethodInspection>
 	public MethodInfo(MethodInspection inspection, XmlDocument document)
 	{
 		this.Inspection = inspection;
-		this.Xml = XmlFormat.Search($"M:{inspection.Name}", document);
+		this.Xml = XmlFormat.Search($"M:{inspection.GetTypePath()}", document);
 	}
 	
 	#endregion // Properties

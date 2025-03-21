@@ -12,7 +12,6 @@ public class TypeInfo : BaseInfo<TypeInspection>
 	{
 		this.Inspection = TypeInspection.Search(typePath, assemblies, ignorePrivate);
 		this.Xml = XmlFormat.Search($"T:{this.Inspection.Info.UnlocalizedName}", xmlFile);
-		this.ShouldIgnore = this.Inspection.ShouldIgnore;
 	}
 	
 	#endregion // Properties

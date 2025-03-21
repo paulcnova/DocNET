@@ -56,7 +56,7 @@ public class EventInspection : BaseInspection
 		this.Adder = new MethodInspection(ev.AddMethod);
 		this.Remover = new MethodInspection(ev.RemoveMethod);
 		
-		if(ignorePrivate && InspectionUtility.GetAccessorId(this.Adder.Accessor, ignorePrivate) == 0)
+		if(ignorePrivate && InspectorUtility.GetAccessorId(this.Adder.Accessor, ignorePrivate) == 0)
 		{
 			this.ShouldIgnore = true;
 			return;

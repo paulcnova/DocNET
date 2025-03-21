@@ -59,7 +59,7 @@ public class FieldInspection : BaseInspection
 		else if(field.IsPrivate) { this.Accessor = "private"; }
 		else { this.Accessor = "public"; }
 		
-		if(ignorePrivate && InspectionUtility.GetAccessorId(this.Accessor, ignorePrivate) == 0)
+		if(ignorePrivate && InspectorUtility.GetAccessorId(this.Accessor, ignorePrivate) == 0)
 		{
 			this.ShouldIgnore = true;
 			return;

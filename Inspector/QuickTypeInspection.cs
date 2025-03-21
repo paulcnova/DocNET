@@ -47,13 +47,13 @@ public partial class QuickTypeInspection
 	/// <param name="type">The type definition to look into</param>
 	public QuickTypeInspection(TypeDefinition type)
 	{
-		List<string> generics = InspectionUtility.GetGenericParametersString(type.GenericParameters);
+		List<string> generics = InspectorUtility.GetGenericParametersString(type.GenericParameters);
 		
-		this.FillNames(type.FullName.Replace("&", ""), InspectionUtility.GetNamespace(type), generics);
+		this.FillNames(type.FullName.Replace("&", ""), InspectorUtility.GetNamespace(type), generics);
 		this.GenericParameters = GenericParameterInspection.CreateArray(type.GenericParameters);
 		if(this.GenericParameters.Count == 0)
 		{
-			this.GenericParameters = InspectionUtility.GetGenericParameters(type.FullName);
+			this.GenericParameters = InspectorUtility.GetGenericParameters(type.FullName);
 		}
 		this.IsGenericType = type.IsGenericParameter && this.UnlocalizedName == this.NonInstancedFullName;
 		
@@ -63,13 +63,13 @@ public partial class QuickTypeInspection
 	/// <param name="type">The type reference to look into</param>
 	public QuickTypeInspection(TypeReference type)
 	{
-		List<string> generics = InspectionUtility.GetGenericParametersString(type.GenericParameters);
+		List<string> generics = InspectorUtility.GetGenericParametersString(type.GenericParameters);
 		
-		this.FillNames(type.FullName.Replace("&", ""), InspectionUtility.GetNamespace(type), generics);
+		this.FillNames(type.FullName.Replace("&", ""), InspectorUtility.GetNamespace(type), generics);
 		this.GenericParameters = GenericParameterInspection.CreateArray(type.GenericParameters);
 		if(this.GenericParameters.Count == 0)
 		{
-			this.GenericParameters = InspectionUtility.GetGenericParameters(type.FullName);
+			this.GenericParameters = InspectorUtility.GetGenericParameters(type.FullName);
 		}
 		this.IsGenericType = type.IsGenericParameter && this.UnlocalizedName == this.NonInstancedFullName;
 		
@@ -95,8 +95,8 @@ public partial class QuickTypeInspection
 			: typeFullName.Substring(0, index)
 		).Replace("[]", "");
 		this.FullName = InspectionRegex.GenericNotation()
-			.Replace(InspectionUtility.LocalizeName(typeFullName, generics), "");
-		this.Name = InspectionUtility.RemoveNamespaceFromType(InspectionUtility.MakeNameFriendly(this.FullName));
+			.Replace(InspectorUtility.LocalizeName(typeFullName, generics), "");
+		this.Name = InspectorUtility.RemoveNamespaceFromType(InspectorUtility.MakeNameFriendly(this.FullName));
 		this.Name = this.Name.Replace("/", ".");
 		this.FullName = this.FullName.Replace("/", ".");
 		this.NonInstancedFullName = this.FullName;

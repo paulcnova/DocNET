@@ -77,12 +77,12 @@ public class PropertyInspection : BaseInspection
 		this.Setter = this.HasSetter
 			? new MethodInspection(property.SetMethod)
 			: null;
-		if(this.Getter != null && InspectionUtility.GetAccessorId(this.Getter.Accessor, true) == 0)
+		if(this.Getter != null && InspectorUtility.GetAccessorId(this.Getter.Accessor, true) == 0)
 		{
 			this.Getter = null;
 			this.HasGetter = false;
 		}
-		if(this.Setter != null && InspectionUtility.GetAccessorId(this.Setter.Accessor, ignorePrivate) == 0)
+		if(this.Setter != null && InspectorUtility.GetAccessorId(this.Setter.Accessor, ignorePrivate) == 0)
 		{
 			this.Setter = null;
 			this.HasSetter = false;
@@ -130,12 +130,12 @@ public class PropertyInspection : BaseInspection
 		this.Setter = this.HasSetter
 			? new MethodInspection(type, boundType, boundTypeRef, property.SetMethod)
 			: null;
-		if(this.Getter != null && InspectionUtility.GetAccessorId(this.Getter.Accessor, true) == 0)
+		if(this.Getter != null && InspectorUtility.GetAccessorId(this.Getter.Accessor, true) == 0)
 		{
 			this.Getter = null;
 			this.HasGetter = false;
 		}
-		if(this.Setter != null && InspectionUtility.GetAccessorId(this.Setter.Accessor, ignorePrivate) == 0)
+		if(this.Setter != null && InspectorUtility.GetAccessorId(this.Setter.Accessor, ignorePrivate) == 0)
 		{
 			this.Setter = null;
 			this.HasSetter = false;
@@ -280,17 +280,17 @@ public class PropertyInspection : BaseInspection
 	/// <returns>Returns the get / set declaration of the property</returns>
 	private string GetGetSetDeclaration(bool ignorePrivate)
 	{
-		int infoId = InspectionUtility.GetAccessorId(this.Accessor, ignorePrivate);
+		int infoId = InspectorUtility.GetAccessorId(this.Accessor, ignorePrivate);
 		int getterId = this.Getter != null
-			? InspectionUtility.GetAccessorId(this.Getter.Accessor, ignorePrivate)
+			? InspectorUtility.GetAccessorId(this.Getter.Accessor, ignorePrivate)
 			: 0;
 		int setterId = this.Setter != null
-			? InspectionUtility.GetAccessorId(this.Setter.Accessor, ignorePrivate)
+			? InspectorUtility.GetAccessorId(this.Setter.Accessor, ignorePrivate)
 			: 0;
 		string declaration = "";
 		
 		if(getterId >= infoId) { declaration = "get;"; }
-		else if(getterId > 0) { declaration = $"{InspectionUtility.GetAccessorFromId(getterId)} get;"; }
+		else if(getterId > 0) { declaration = $"{InspectorUtility.GetAccessorFromId(getterId)} get;"; }
 		
 		if(setterId >= infoId)
 		{
@@ -298,7 +298,7 @@ public class PropertyInspection : BaseInspection
 		}
 		else if(setterId > 0)
 		{
-			declaration += $"{(declaration != "" ? " " : "")}{InspectionUtility.GetAccessorFromId(setterId)} set;";
+			declaration += $"{(declaration != "" ? " " : "")}{InspectorUtility.GetAccessorFromId(setterId)} set;";
 		}
 		
 		return declaration;
@@ -350,13 +350,13 @@ public class PropertyInspection : BaseInspection
 	private string GetAccessor()
 	{
 		int getterId = this.Getter != null
-			? InspectionUtility.GetAccessorId(this.Getter.Accessor, false)
+			? InspectorUtility.GetAccessorId(this.Getter.Accessor, false)
 			: 0;
 		int setterId = this.Setter != null
-			? InspectionUtility.GetAccessorId(this.Setter.Accessor, false)
+			? InspectorUtility.GetAccessorId(this.Setter.Accessor, false)
 			: 0;
 		
-		return InspectionUtility.GetAccessorFromId(System.Math.Max(getterId, setterId));
+		return InspectorUtility.GetAccessorFromId(System.Math.Max(getterId, setterId));
 	}
 	
 	/// <summary>Gets the modifier of the property from either the getter or the setting</summary>
@@ -364,10 +364,10 @@ public class PropertyInspection : BaseInspection
 	private string GetModifier()
 	{
 		int getterId = this.Getter != null
-			? InspectionUtility.GetAccessorId(this.Getter.Accessor, false)
+			? InspectorUtility.GetAccessorId(this.Getter.Accessor, false)
 			: 0;
 		int setterId = this.Setter != null
-			? InspectionUtility.GetAccessorId(this.Setter.Accessor, false)
+			? InspectorUtility.GetAccessorId(this.Setter.Accessor, false)
 			: 0;
 		
 		if(getterId != 0 && getterId >= setterId) { return this.Getter.Modifier; }

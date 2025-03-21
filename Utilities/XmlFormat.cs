@@ -92,7 +92,7 @@ public partial class XmlFormat
 			
 			string desc = TrimTextContent(GetTextContent(member, "No description"));
 			
-			list.Add(new NameDescription(name, Utility.RenderMarkdown(desc)));
+			list.Add(new NameDescription(name, InspectorUtility.RenderMarkdown(desc)));
 		}
 		
 		return list;
@@ -106,7 +106,7 @@ public partial class XmlFormat
 		
 		string desc = this.TrimTextContent(this.GetTextContent(elements[0] as XmlElement, defaultText));
 		
-		return Utility.RenderMarkdown(desc);
+		return InspectorUtility.RenderMarkdown(desc);
 	}
 	
 	private string TrimTextContent(string content)
@@ -174,8 +174,8 @@ public partial class XmlFormat
 								: InspectionRegex.GenericNotation().Replace(typeMatch.Groups[2].Value, "");
 							
 							content += isSystem
-								? Utility.CreateSystemLink(link, name)
-								: Utility.CreateInternalLink(link, name);
+								? InspectorUtility.CreateSystemLink(link, name)
+								: InspectorUtility.CreateInternalLink(link, name);
 						}
 						break;
 				}

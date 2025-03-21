@@ -1,68 +1,18 @@
 
 namespace DocNET.Utilities;
 
-using DocNET.Information;
-
 using System.IO;
 using System.Xml;
 
-/// <summary>A static class used for utility</summary>
 public static class Utility
 {
-	#region Properties
-	
-	/// <summary>The markdown pipeline used to render for prism</summary>
-	// private static readonly MarkdownPipeline Pipeline = new MarkdownPipelineBuilder()
-	// 	.UseAdvancedExtensions()
-	// 	.UsePrism()
-	// 	.Build();
-	
-	public static IUtilitySet UtilitySet { get; set; } = new DefaultUtilitySet();
+	#region Public Methods
 	
 	/// <summary>Gets the absolute path this program's place in the user's `APPDATA` folder</summary>
 	public static string AppDataPath => Path.Combine(GetAppDataPath(), "DocNET");
 	
 	/// <summary>Gets the absolute path to the temp folder used by this program</summary>
 	public static string TempPath => Path.Combine(AppDataPath, "temp");
-	
-	#endregion // Properties
-	
-	#region Public Methods
-	
-	public static void SetTemplate(string template)
-	{
-		// TODO: Set template
-	}
-	
-	public static void RenderAndSaveToFile(string output, string typePath, TypeInfo info)
-	{
-		UtilitySet.RenderAndSaveToFile(output, typePath, info);
-	}
-	
-	/// <inheritdoc cref="IUtilitySet.CreateSystemLink(string, string)"/>
-	public static string CreateSystemLink(string typePath, string linkName) => UtilitySet?.CreateSystemLink(typePath, linkName) ?? "";
-	
-	/// <inheritdoc cref="IUtilitySet.CreateInternalLink(string, string)"/>
-	public static string CreateInternalLink(string typePath, string linkName) => UtilitySet?.CreateInternalLink(typePath, linkName) ?? "";
-	
-	public static XmlElement CreateElementWithText(XmlDocument document, string elementName, string text)
-	{
-		XmlElement element = document.CreateElement(elementName);
-		
-		element.AppendChild(document.CreateTextNode(text));
-		
-		return element;
-	}
-	
-	/// <summary>Renders the given markdown</summary>
-	/// <param name="markdown">The markdown content to render</param>
-	/// <returns>Returns the rendered markdown</returns>
-	public static string RenderMarkdown(string markdown) => markdown;//Markdown.ToHtml(markdown, Pipeline);
-	
-	/// <summary>Makes the given file path an absolute path.</summary>
-	/// <param name="relativePath">The relative file path.</param>
-	/// <returns>Returns the absolute path.</returns>
-	public static string MakeAbsolute(string relativePath) => Path.GetFullPath(relativePath);
 	
 	/// <summary>Ensures the path by making any directories if they don't exist yet</summary>
 	/// <param name="path">The folder path to ensure it's path</param>
@@ -86,6 +36,52 @@ public static class Utility
 		}
 		
 		File.WriteAllText(path, content);
+	}
+	
+	/// <summary>Gets the list of templates available for DocNET</summary>
+	/// <returns>Returns a list of strings that name each template available</returns>
+	public static List<string> GetTemplates()
+	{
+		// TODO: Get user created templates from %APPDATA%
+		List<string> templates = new List<string>()
+		{
+			"html",
+			"react",
+			"angular",
+			"vue",
+			"godot"
+		};
+		
+		return templates;
+	}
+	
+	public static void DisplayHelp()
+	{
+		System.Console.WriteLine("Use: DocNET [options] [arguments]");
+		System.Console.WriteLine("Information:");
+		System.Console.WriteLine("-h, --help                     Displays the help menu.");
+		System.Console.WriteLine("--list-projects                Lists all the projects are available.");
+		System.Console.WriteLine("--list-templates               Lists all the templates available.");
+		System.Console.WriteLine(".csproj Settings:");
+		System.Console.WriteLine("-d, --directory <directory>    Sets the directory to look for the .csproj.");
+	}
+	
+	public static void DisplayTemplates()
+	{
+		System.Console.WriteLine("Templates:");
+		foreach(string template in GetTemplates())
+		{
+			System.Console.WriteLine($"    {template}");
+		}
+	}
+	
+	public static void DisplayProjects()
+	{
+		System.Console.WriteLine("Projects:");
+		foreach(string project in CSProjUtility.GetProjectsList())
+		{
+			System.Console.WriteLine($"    {project}");
+		}
 	}
 	
 	#endregion // Public Methods

@@ -1,16 +1,26 @@
 
-namespace DocNET.Templates.HTML;
+namespace DocNET.Utilities;
 
 using DocNET.Information;
-using DocNET.Utilities;
 
-public class HtmlUtilitySet : IUtilitySet
+using System.Xml;
+
+/// <summary>A default utility set used by DocNET, utility set is meant for static html</summary>
+public class XmlUtilitySet : IUtilitySet
 {
 	#region Public Methods
 	
 	public void ProcessType(string fileName, TypeInfo info)
 	{
+		Utility.EnsurePath(fileName.Substring(0, fileName.LastIndexOf('/')));
 		
+		XmlDocument document = new XmlDocument();
+		XmlElement root = document.CreateElement("documentation");
+		
+		root.SetAttribute("type", info.Inspection.Info.UnlocalizedName);
+		
+		document.AppendChild(root);
+		document.Save(fileName);
 	}
 	
 	// /// <inheritdoc/>

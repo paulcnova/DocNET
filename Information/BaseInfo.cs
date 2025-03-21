@@ -20,4 +20,13 @@ public abstract class BaseInfo<T>
 	public bool ShouldIgnore { get; protected set; }
 	
 	#endregion // Properties
+	
+	#region Public Methods
+	
+	public void Process(string saveLocation)
+	{
+		
+	}
+	
+	#endregion // Public Methods
 }

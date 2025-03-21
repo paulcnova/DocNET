@@ -4,13 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <Compile Remove="Source/**/*.cs"/>
-    <Compile Remove="Templates/**/*.cs"/>
+    <Compile Remove="Source/**/*.cs" />
+    <Compile Remove="Templates/**/*.cs" />
   </ItemGroup>
-  <Import Project="Documentation.props"/>
+  <Import Project="Documentation.props" />
 </Project>

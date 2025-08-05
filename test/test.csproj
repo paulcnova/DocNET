@@ -15,6 +15,7 @@
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
+  <UsingTask TaskName="DocNET" AssemblyFile="../bin/Debug/net8.0/DocNET.dll" Override="True" />
   <Target Name="TEST" AfterTargets="Build">
     <PropertyGroup>
       <AssemblyDirectory>$(MSBuildProjectDirectory)\$(OutDir)</AssemblyDirectory>

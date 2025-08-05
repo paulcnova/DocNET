@@ -27,6 +27,8 @@ public class DocNET : Task
 		}
 		System.Console.WriteLine(this.OriginalAssemblyDir);
 		
+		
+		
 		return true;
 	}
 	

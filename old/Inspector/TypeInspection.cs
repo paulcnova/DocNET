@@ -66,6 +66,11 @@ public class TypeInspection
 	/// <summary>Gets if the type should be ignored since it is private</summary>
 	public bool ShouldIgnore { get; private set; } = false;
 	
+	/// <summary>A constructor that inspects a type from it's given string name</summary>
+	/// <param name="type">The full name of the type to inspect</param>
+	/// <param name="environment">The project's environment to get all the data for the type.</param>
+	public TypeInspector(string type, ProjectEnvironment environment);
+	
 	public TypeInspection(AssemblyDefinition asm, TypeDefinition type, string[] assemblies, bool ignorePrivate = true)
 	{
 		if(type.IsPublic || type.IsNestedPublic) { this.Accessor = "public"; }

@@ -1,0 +1,11 @@
+
+<DocNET>
+	<Assemblies>
+		<Assembly Name="DocNET">{CWD}/bin/Debug/net8.0/DocNET.dll</Assembly>
+		<Assembly Name="Mono.Cecil">{CWD}/bin/Debug/net8.0/Mono.Cecil.dll</Assembly>
+		<Assembly Name="Mono.Cecil.Mdb">{CWD}/bin/Debug/net8.0/Mono.Cecil.Mdb.dll</Assembly>
+		<Assembly Name="Mono.Cecil.Pdb">{CWD}/bin/Debug/net8.0/Mono.Cecil.Pdb.dll</Assembly>
+		<Assembly Name="Mono.Cecil.Rocks">{CWD}/bin/Debug/net8.0/Mono.Cecil.Rocks.dll</Assembly>
+		<Assembly Name="Newtonsoft.Json">{CWD}/bin/Debug/net8.0/Newtonsoft.Json.dll</Assembly>
+	</Assemblies>
+</DocNET>

@@ -13,6 +13,11 @@ public class TypeInfo : BaseInfo<TypeInspection>
 	
 	public List<MethodInfo> Methods { get; private set; } = new List<MethodInfo>();
 	
+	/// <summary>A constructor that gets the info for the type from it's given string name</summary>
+	/// <param name="type">The full name of the type to get the information from</param>
+	/// <param name="environment">The project's environment to get all the data for the type.</param>
+	public TypeInfo(string type, ProjectEnvironment environment);
+	
 	public TypeInfo(string typePath, string[] assemblies, string xmlFile, bool ignorePrivate = true)
 	{
 		this.Inspection = TypeInspection.Search(typePath, assemblies, ignorePrivate);

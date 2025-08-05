@@ -36,9 +36,7 @@ public static class InspectorUtility
 	
 	#region Public Methods
 	
-	/// <inheritdoc cref="IUtilitySet.CreateSystemLink(string, string)"/>
 	public static string CreateSystemLink(string typePath, string linkName) => "";//UtilitySet?.CreateSystemLink(typePath, linkName) ?? "";
-	/// <inheritdoc cref="IUtilitySet.CreateInternalLink(string, string)"/>
 	public static string CreateInternalLink(string typePath, string linkName) => "";//UtilitySet?.CreateInternalLink(typePath, linkName) ?? "";
 	
 	/// <summary>Renders the given markdown</summary>
@@ -332,7 +330,7 @@ public static class InspectorUtility
 	}
 	
 	/// <summary>Finds if the method is an extension</summary>
-	/// <param name="method">The method to look into</param>
+	/// <param name="attributes">The method to look into</param>
 	/// <returns>Returns true if the method is an extension by having the extension attribute</returns>
 	public static bool HasExtensionAttribute(List<AttributeInspection> attributes)
 	{

@@ -188,6 +188,7 @@ public class PropertyInspection : BaseInspection
 	/// <param name="type">The type to gather information from</param>
 	/// <param name="recursive">Set to true to recursively look through base types</param>
 	/// <param name="isStatic">Set to true to record only static members</param>
+	/// <param name="ignorePrivate">Set to false to include all the private properties</param>
 	/// <returns>Returns an array of property informations</returns>
 	public static List<PropertyInspection> CreateArray(TypeDefinition type, bool recursive, bool isStatic, bool ignorePrivate = true)
 	{
@@ -237,6 +238,7 @@ public class PropertyInspection : BaseInspection
 	
 	/// <summary>Generates an array of property informations from the given collection of property definitions</summary>
 	/// <param name="properties">The collection of property definitions</param>
+	/// <param name="ignorePrivate">Set to false to include all the private properties</param>
 	/// <returns>Returns an array of property informations</returns>
 	public static List<PropertyInspection> CreateArray(Collection<PropertyDefinition> properties, bool ignorePrivate = true)
 	{

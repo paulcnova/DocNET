@@ -39,11 +39,11 @@ public class GenerateDocumentation : Task
 		
 		if(generator == null) { return false; }
 		
-		// SiteMap siteMap = new SiteMap(environment);
-		// List<string> typesToDocument = siteMap.FindTypes();
+		SiteMap siteMap = new SiteMap(environment);
+		List<string> typesToDocument = siteMap.FindTypes();
 		
-		// foreach(string type in typesToDocument)
-		// {
+		foreach(string type in typesToDocument)
+		{
 		// 	TypeInspection inspectedType = new TypeInspection(type, environment);
 		// 	TypeInfo information = new TypeInfo(type, environment);
 		// 	Linker linker = new Linker(inspectedType, information, environment);
@@ -54,7 +54,7 @@ public class GenerateDocumentation : Task
 				
 		// 		documentation.Save(environment);
 		// 	}
-		// }
+		}
 		
 		return true;
 	}

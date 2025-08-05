@@ -1,11 +1,7 @@
 
-namespace DocNET.Xml;
+namespace DocNET.Information;
 
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Xml;
-
-using DocNET.Inspections;
 
 public class XmlContentNode
 {

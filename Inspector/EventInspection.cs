@@ -46,6 +46,7 @@ public class EventInspection : BaseInspection
 	
 	/// <summary>Generates an event information from the given event definition</summary>
 	/// <param name="ev">The event definition to gather information from</param>
+	/// <param name="ignorePrivate">Set to false to include all the private properties</param>
 	public EventInspection(EventDefinition ev, bool ignorePrivate = true)
 	{
 		this.Name = ev.Name;
@@ -79,6 +80,7 @@ public class EventInspection : BaseInspection
 	/// <param name="type">The type to look into</param>
 	/// <param name="recursive">Set to true to recursively look into the base type of the type</param>
 	/// <param name="isStatic">Set to true to look for only static members</param>
+	/// <param name="ignorePrivate">Set to false to include all the private properties</param>
 	/// <returns>Returns the array of event informations</returns>
 	public static List<EventInspection> CreateArray(TypeDefinition type, bool recursive, bool isStatic, bool ignorePrivate = true)
 	{
@@ -119,6 +121,7 @@ public class EventInspection : BaseInspection
 	
 	/// <summary>Generates an array of event informations from the given collection of event definitions</summary>
 	/// <param name="events">The collection of event definitions</param>
+	/// <param name="ignorePrivate">Set to false to include all the private properties</param>
 	/// <returns>Returns an array of event informations generated</returns>
 	public static List<EventInspection> CreateArray(Collection<EventDefinition> events, bool ignorePrivate = true)
 	{

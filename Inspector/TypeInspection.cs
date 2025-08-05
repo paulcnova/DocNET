@@ -327,6 +327,8 @@ public class TypeInspection
 	
 	/// <summary>Generates an array of interface informations</summary>
 	/// <param name="interfaces">The collection of interface implementations</param>
+	/// <param name="assemblies">The assemblies to get the interface data from.</param>
+	/// <param name="ignorePrivate">Set to false to include all the private properties</param>
 	/// <returns>Returns an array of interface informations</returns>
 	private List<QuickTypeInspection> GetInterfaceData(Collection<InterfaceImplementation> interfaces, string[] assemblies, bool ignorePrivate = true)
 	{

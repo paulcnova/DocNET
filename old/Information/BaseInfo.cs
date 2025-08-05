@@ -14,7 +14,7 @@ public abstract class BaseInfo<T>
 	public T Inspection { get; protected set; }
 	
 	/// <summary>Gets the XML content for this piece of code.</summary>
-	public XmlFormat Xml { get; protected set; }
+	public InformationDocument Xml { get; protected set; }
 	
 	/// <summary>Gets if this class should be ignored and discarded.</summary>
 	public bool ShouldIgnore { get; protected set; }

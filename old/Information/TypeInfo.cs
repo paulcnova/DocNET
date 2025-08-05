@@ -21,9 +21,9 @@ public class TypeInfo : BaseInfo<TypeInspection>
 	public TypeInfo(string typePath, string[] assemblies, string xmlFile, bool ignorePrivate = true)
 	{
 		this.Inspection = TypeInspection.Search(typePath, assemblies, ignorePrivate);
-		this.Xml = XmlFormat.Search($"T:{this.Inspection.Info.UnlocalizedName}", xmlFile);
+		this.Xml = InformationDocument.Search($"T:{this.Inspection.Info.UnlocalizedName}", xmlFile);
 		
-		XmlDocument document = XmlFormat.Find(xmlFile);
+		XmlDocument document = InformationDocument.Load(xmlFile);
 		
 		foreach(MethodInspection method in MethodInspection.CreateArray(TypeInspection.SearchDefinition(typePath, assemblies, ignorePrivate), true, false, ignorePrivate: ignorePrivate))
 		{

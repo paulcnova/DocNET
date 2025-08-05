@@ -1,5 +1,5 @@
 
-namespace DocNET.Utilities;
+namespace DocNET.Inspections;
 
 using System.Text.RegularExpressions;
 

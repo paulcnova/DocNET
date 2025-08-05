@@ -1,13 +1,10 @@
 
-namespace DocNET.Utilities;
-
-using DocNET.Inspections;
+namespace DocNET.Inspections;
 
 using Mono.Cecil;
 using Mono.Collections.Generic;
 
 using System.Collections.Generic;
-using System.IO;
 
 /// <summary>A static class used for utility</summary>
 public static class InspectorUtility

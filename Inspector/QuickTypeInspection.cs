@@ -1,8 +1,6 @@
 
 namespace DocNET.Inspections;
 
-using DocNET.Utilities;
-
 using Mono.Cecil;
 
 using System.Collections.Generic;

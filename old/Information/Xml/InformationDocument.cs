@@ -1,15 +1,13 @@
 
-namespace DocNET.Utilities;
+namespace DocNET.Information;
 
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Xml;
 
-using DocNET.Inspections;
 using DocNET.Xml;
 
 /// <summary>A class that holds the format of the XML content</summary>
-public partial class XmlFormat
+public partial class InformationDocument
 {
 	#region Properties
 	
@@ -17,7 +15,7 @@ public partial class XmlFormat
 	
 	public XmlContentNode Summary => this.Contents["summary"];
 	
-	public XmlFormat(XmlElement member)
+	public InformationDocument(XmlElement member)
 	{
 		foreach(XmlNode child in member.ChildNodes)
 		{
@@ -36,7 +34,7 @@ public partial class XmlFormat
 	
 	#region Public Methods
 	
-	public static XmlDocument Find(string xmlFile)
+	public static XmlDocument Load(string xmlFile)
 	{
 		XmlDocument document = new XmlDocument();
 		
@@ -45,7 +43,7 @@ public partial class XmlFormat
 		return document;
 	}
 	
-	public static XmlFormat Search(string typePath, string xmlFile)
+	public static InformationDocument Search(string typePath, string xmlFile)
 	{
 		XmlDocument document = new XmlDocument();
 		
@@ -54,13 +52,13 @@ public partial class XmlFormat
 		return Search(typePath, document);
 	}
 	
-	public static XmlFormat Search(string typePath, XmlDocument document)
+	public static InformationDocument Search(string typePath, XmlDocument document)
 	{
 		foreach(XmlElement elem in document["doc"]["members"])
 		{
 			if(elem.HasAttribute("name") && elem.GetAttribute("name") == typePath)
 			{
-				return new XmlFormat(elem);
+				return new InformationDocument(elem);
 			}
 		}
 		

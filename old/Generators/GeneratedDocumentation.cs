@@ -1,5 +1,5 @@
 
-namespace DocNET.Generation;
+namespace DocNET.Generators;
 
 public sealed class GeneratedDocumentation
 {

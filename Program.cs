@@ -7,7 +7,7 @@ public static class Program
 	
 	public static void Main(string[] args)
 	{
-		System.Console.WriteLine("Hello!");
+		System.Console.WriteLine("TODO: Create a CLI version.");
 	}
 	
 	#endregion // Public Methods

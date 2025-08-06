@@ -58,6 +58,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		yield return new LinkedMember()
 		{
 			Document = this.Document,
+			SiteMap = this.SiteMap,
 			Info = this.Document.Find(this.Inspection),
 			MemberType = LinkedMember.Type.Type,
 			TypeInspection = this.Inspection,
@@ -68,6 +69,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				MethodInspection = method,
@@ -79,6 +81,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(field),
 				MemberType = LinkedMember.Type.Field,
 				FieldInspection = field,
@@ -90,6 +93,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(field),
 				MemberType = LinkedMember.Type.Field,
 				IsStatic = true,
@@ -102,6 +106,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(property),
 				MemberType = LinkedMember.Type.Property,
 				PropertyInspection = property,
@@ -113,6 +118,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(property),
 				MemberType = LinkedMember.Type.Property,
 				IsStatic = true,
@@ -125,6 +131,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(@event),
 				MemberType = LinkedMember.Type.Event,
 				EventInspection = @event,
@@ -136,6 +143,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(@event),
 				MemberType = LinkedMember.Type.Event,
 				EventInspection = @event,
@@ -147,6 +155,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				MethodInspection = method,
@@ -158,6 +167,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				IsStatic = true,
@@ -170,6 +180,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 			yield return new LinkedMember()
 			{
 				Document = this.Document,
+				SiteMap = this.SiteMap,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				IsStatic = true,

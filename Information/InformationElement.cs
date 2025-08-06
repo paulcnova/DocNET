@@ -8,11 +8,11 @@ public sealed class InformationElement
 {
 	#region Properties
 	
-	public Dictionary<string, XmlContentNode> Contents { get; private set; } = new Dictionary<string, XmlContentNode>();
+	public const string XCD_Summary = "summary";
 	
-	public XmlContentNode Summary => this.Contents.ContainsKey("summary") ? this.Contents["summary"] : null;
+	public Dictionary<string, XcdContentNode> Contents { get; private set; } = new Dictionary<string, XcdContentNode>();
 	
-	public delegate string FlattenCallback(string type, XmlContentNode node);
+	public XcdContentNode Summary => this.Contents.ContainsKey(XCD_Summary) ? this.Contents[XCD_Summary] : null;
 	
 	public InformationElement(XmlElement member)
 	{
@@ -37,38 +37,25 @@ public sealed class InformationElement
 	
 	#region Public Methods
 	
-	public string Flatten(string type, Inspections.TypeInspection insp, XmlContentNode node, FlattenCallback callback = null)
+	public string FlattenSummary(NodeFlattener flattener) => this.Flatten(XCD_Summary, flattener);
+	public string Flatten(string type, NodeFlattener flattener)
 	{
-		if(callback != null) { return callback(type, node); }
-		
 		switch(type)
 		{
-			case "summary":
-				XmlContentNode summary = this.Summary;
-				
-				if(summary == null) { break; }
-				
-				return summary.Flatten();
+			default: return flattener.Flatten<XcdContentNode>(null);
+			case XCD_Summary: return flattener.Flatten(this.Summary);
 		}
-		
-		return "No description.";
 	}
 	
 	#endregion // Public Methods
 	
 	#region Private Methods
 	
-	private XmlContentNode ExtractContent(XmlNode node)
+	private XcdContentNode ExtractContent(XmlNode node)
 	{
 		if(node is XmlElement elem)
 		{
-			XmlContentNode content = new XmlContentNode();
-			
-			// System.Console.WriteLine("ELEMENT:"+elem.Name);
-			// foreach(XmlAttribute attr in elem.Attributes)
-			// {
-			// 	System.Console.WriteLine(attr.Name+"::"+attr.Value);
-			// }
+			XcdContentNode content = new XcdContentNode();
 			
 			foreach(XmlNode child in elem.ChildNodes)
 			{
@@ -76,13 +63,16 @@ public sealed class InformationElement
 			}
 			return content;
 		}
-		if(node is XmlText txt)
+		else if(node is XmlText txt)
 		{
-			XmlTextNode content = new XmlTextNode();
+			XcdTextNode content = new XcdTextNode();
 			
-			// System.Console.WriteLine(txt.InnerText);
 			content.Text = txt.InnerText;
 			return content;
+		}
+		else
+		{
+			System.Console.WriteLine(node.GetType());
 		}
 		
 		return null;

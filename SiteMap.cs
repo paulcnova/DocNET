@@ -91,7 +91,6 @@ public sealed class SiteMap
 	/// <returns>A list of all the types relevant to the project</returns>
 	public List<string> FindTypes()
 	{
-		System.Console.WriteLine(string.Join("\n\n", this.Types.Keys));
 		if(this.Types.ContainsKey(this.Environment.OriginalAssembly))
 		{
 			return this.Types[this.Environment.OriginalAssembly];

@@ -20,7 +20,6 @@ public sealed class InformationDocument
 		{
 			InformationElement element = new InformationElement(member);
 			
-			System.Console.WriteLine(member.GetAttribute("name"));
 			this.Contents.Add(member.GetAttribute("name"), element);
 		}
 	}
@@ -39,18 +38,9 @@ public sealed class InformationDocument
 	}
 	
 	public InformationElement Find(IXmlMember member)
-	{
-		string xcdID = member.GetXmlNameID();
-		
-		// System.Console.WriteLine(xcdID + "----"+this.Contents.ContainsKey(xcdID));
-		if(this.Contents.ContainsKey(xcdID))
-		{
-			return this.Contents[xcdID];
-		}
-		
-		return null;
-		// return new InformationElement((new XmlDocument()).CreateElement("NA"));
-	}
+		=> this.Contents.TryGetValue(member.GetXmlNameID(), out InformationElement elem)
+			? elem
+			: null;
 	
 	#endregion // Public Methods
 }

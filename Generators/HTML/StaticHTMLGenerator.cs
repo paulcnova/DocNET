@@ -27,6 +27,7 @@ public sealed class StaticHTMLGenerator : IGenerator
 	{
 		TypeInspection details = member.TypeInspection;
 		InformationElement info = member.Info;
+		NodeFlattener flattener = new NodeFlattener(member.SiteMap);
 		
 		if(info == null)
 		{
@@ -43,7 +44,7 @@ public sealed class StaticHTMLGenerator : IGenerator
 			Content = $"""
 			<div class="type member">
 				<h1>{details.Info.FullName}</h1>
-				<p>{info.Flatten("summary", details, info.Summary)}</p>
+				<p>{info.FlattenSummary(flattener)}</p>
 			</div>
 			""",
 			FileName = details.Info.FullName,

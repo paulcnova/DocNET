@@ -11,6 +11,7 @@ public sealed class LinkedMember
 	public required InformationDocument Document { get; set; }
 	public required InformationElement Info { get; set; }
 	public required Type MemberType { get; set; }
+	public required SiteMap SiteMap { get; set; }
 	public bool IsStatic { get; set; } = false;
 	public TypeInspection TypeInspection { get; set; }
 	public FieldInspection FieldInspection { get; set; }

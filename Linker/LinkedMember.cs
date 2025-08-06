@@ -8,6 +8,7 @@ public sealed class LinkedMember
 {
 	#region Properties
 	
+	public required InformationDocument Document { get; set; }
 	public required InformationElement Info { get; set; }
 	public required Type MemberType { get; set; }
 	public bool IsStatic { get; set; } = false;

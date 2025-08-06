@@ -1,6 +1,8 @@
 
 namespace DocNET;
 
+using DocNET.Inspections;
+
 using Mono.Cecil;
 
 using System.Collections.Generic;
@@ -20,10 +22,25 @@ public sealed class SiteMap
 	/// <param name="environment">The environment to create a site map for</param>
 	public SiteMap(ProjectEnvironment environment)
 	{
+		List<AssemblyDefinition> definitions = new List<AssemblyDefinition>();
+		
 		this.Environment = environment;
 		foreach(string assembly in this.Environment.Assemblies)
 		{
 			AssemblyDefinition asm = AssemblyDefinition.ReadAssembly(assembly);
+			
+			definitions.Add(asm);
+		}
+		
+		KnownAssemblyResolver resolver = new KnownAssemblyResolver(definitions);
+		ReaderParameters readerParameters = new ReaderParameters()
+		{
+			AssemblyResolver = resolver,
+		};
+		
+		foreach(string assembly in this.Environment.Assemblies)
+		{
+			AssemblyDefinition asm = AssemblyDefinition.ReadAssembly(assembly, readerParameters);
 			int index = System.Math.Max(assembly.LastIndexOf('/'), assembly.LastIndexOf('\\'));
 			string asmName = (index == -1 ? assembly : assembly.Substring(index + 1));
 			
@@ -74,6 +91,7 @@ public sealed class SiteMap
 	/// <returns>A list of all the types relevant to the project</returns>
 	public List<string> FindTypes()
 	{
+		System.Console.WriteLine(string.Join("\n\n", this.Types.Keys));
 		if(this.Types.ContainsKey(this.Environment.OriginalAssembly))
 		{
 			return this.Types[this.Environment.OriginalAssembly];

@@ -10,7 +10,9 @@ public sealed class InformationElement
 	
 	public Dictionary<string, XmlContentNode> Contents { get; private set; } = new Dictionary<string, XmlContentNode>();
 	
-	public XmlContentNode Summary => this.Contents["summary"];
+	public XmlContentNode Summary => this.Contents.ContainsKey("summary") ? this.Contents["summary"] : null;
+	
+	public delegate string FlattenCallback(string type, XmlContentNode node);
 	
 	public InformationElement(XmlElement member)
 	{
@@ -22,26 +24,34 @@ public sealed class InformationElement
 			}
 			else
 			{
+				// System.Console.WriteLine(child.Name);
 				this.Contents.Add(child.Name, this.ExtractContent(child));
 			}
 		}
+		// TODO: Contents becomes zero
+		// System.Console.WriteLine(this.Contents.Count);
+		// System.Console.WriteLine(string.Join(", ", this.Contents.Keys));
 	}
 	
 	#endregion // Properties
 	
 	#region Public Methods
 	
-	public static InformationElement Search(string typePath, XmlDocument document)
+	public string Flatten(string type, Inspections.TypeInspection insp, XmlContentNode node, FlattenCallback callback = null)
 	{
-		foreach(XmlElement elem in document["doc"]["members"])
+		if(callback != null) { return callback(type, node); }
+		
+		switch(type)
 		{
-			if(elem.HasAttribute("name") && elem.GetAttribute("name") == typePath)
-			{
-				return new InformationElement(elem);
-			}
+			case "summary":
+				XmlContentNode summary = this.Summary;
+				
+				if(summary == null) { break; }
+				
+				return summary.Flatten();
 		}
 		
-		return null;
+		return "No description.";
 	}
 	
 	#endregion // Public Methods
@@ -54,22 +64,23 @@ public sealed class InformationElement
 		{
 			XmlContentNode content = new XmlContentNode();
 			
-			System.Console.WriteLine("ELEMENT:"+elem.Name);
-			foreach(XmlAttribute attr in elem.Attributes)
-			{
-				System.Console.WriteLine(attr.Name+"::"+attr.Value);
-			}
+			// System.Console.WriteLine("ELEMENT:"+elem.Name);
+			// foreach(XmlAttribute attr in elem.Attributes)
+			// {
+			// 	System.Console.WriteLine(attr.Name+"::"+attr.Value);
+			// }
 			
 			foreach(XmlNode child in elem.ChildNodes)
 			{
 				content.Children.Add(this.ExtractContent(child));
 			}
+			return content;
 		}
 		if(node is XmlText txt)
 		{
 			XmlTextNode content = new XmlTextNode();
 			
-			System.Console.WriteLine(txt.InnerText);
+			// System.Console.WriteLine(txt.InnerText);
 			content.Text = txt.InnerText;
 			return content;
 		}

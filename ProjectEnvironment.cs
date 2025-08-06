@@ -17,6 +17,7 @@ public class ProjectEnvironment
 	public required List<string> Assemblies { get; set; }
 	public required string GeneratorType { get; set; }
 	public required bool IncludePrivate { get; set; }
+	public required string OutputDirectory { get; set; }
 	
 	public bool IgnorePrivate => !this.IncludePrivate;
 	
@@ -28,13 +29,13 @@ public class ProjectEnvironment
 	/// <returns>The documentation generator used to generate the documentation.</returns>
 	public IGenerator CreateGenerator()
 	{
-		// switch(this.GeneratorType)
-		// {
-		// 	case GeneratorType_StaticHTML: return new StaticHTMLGenerator();
-		// 	case GeneratorType_Godot: return new GodotGenerator();
-		// }
+		switch(this.GeneratorType)
+		{
+			case GeneratorType_StaticHTML: return new StaticHTMLGenerator();
+			case GeneratorType_Godot: return new GodotGenerator();
+		}
 		
-		// System.Console.WriteLine($"Could not find generator of: {this.GeneratorType}");
+		System.Console.WriteLine($"Could not find generator of: {this.GeneratorType}");
 		
 		return null;
 	}

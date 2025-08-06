@@ -20,6 +20,7 @@ public class GenerateDocumentation : Task
 	[Required] public string AssembliesPath { get; set; }
 	[Required] public string OriginalAssembly { get; set; }
 	[Required] public string GeneratorType { get; set; }
+	[Required] public string OutputDirectory { get; set; }
 	[Required] public string XMLFile { get; set; }
 	public bool IncludePrivate { get; set; } = false;
 	
@@ -36,11 +37,16 @@ public class GenerateDocumentation : Task
 			OriginalAssembly = this.OriginalAssembly,
 			Assemblies = new List<string>(files),
 			GeneratorType = this.GeneratorType,
+			OutputDirectory = this.OutputDirectory,
 			IncludePrivate = this.IncludePrivate,
 		};
 		IGenerator generator = environment.CreateGenerator();
 		
-		if(generator == null) { return false; }
+		if(generator == null)
+		{
+			this.Log.LogError($"Generator type [{this.GeneratorType}] is not accepted");
+			return false;
+		}
 		
 		InformationDocument document = new InformationDocument(this.XMLFile);
 		SiteMap siteMap = new SiteMap(environment);
@@ -55,8 +61,13 @@ public class GenerateDocumentation : Task
 			{
 				GeneratedDocumentation documentation = generator.Generate(linkedMember);
 				
-				documentation.Save(environment);
+				if(documentation != null)
+				{
+					linker.Push(documentation);
+				}
 			}
+			
+			linker.RenderAndSave();
 		}
 		
 		return true;

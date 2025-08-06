@@ -1,6 +1,7 @@
 
 namespace DocNET.Linking;
 
+using DocNET.Generators;
 using DocNET.Information;
 using DocNET.Inspections;
 
@@ -15,6 +16,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 	public InformationDocument Document { get; private set; }
 	public SiteMap SiteMap { get; private set; }
 	public TypeInspection Inspection { get; private set; }
+	public GeneratedDocumentation Documentation { get; private set; }
 	
 	/// <summary>A constructor that links together the type's inspection as well as it's information</summary>
 	/// <param name="inspection">The actual type's inspection (source code).</param>
@@ -33,14 +35,39 @@ public sealed class Linker : IEnumerable<LinkedMember>
 	
 	#region Public Methods
 	
+	public void RenderAndSave()
+	{
+		
+		// TODO: Render the tree.
+		// TODO: Save the rendered object.
+		this.Documentation.Save(this.Environment);
+		// throw new System.NotImplementedException();
+	}
+	
+	public void Push(GeneratedDocumentation documentation)
+	{
+		// TODO: Push the documentation into a tree like structure.
+		this.Documentation = documentation;
+		// throw new System.NotImplementedException();
+	}
+	
 	IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
 	
 	public IEnumerator<LinkedMember> GetEnumerator()
 	{
+		yield return new LinkedMember()
+		{
+			Document = this.Document,
+			Info = this.Document.Find(this.Inspection),
+			MemberType = LinkedMember.Type.Type,
+			TypeInspection = this.Inspection,
+		};
+		
 		foreach(MethodInspection method in this.Inspection.Constructors)
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				MethodInspection = method,
@@ -51,6 +78,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(field),
 				MemberType = LinkedMember.Type.Field,
 				FieldInspection = field,
@@ -61,6 +89,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(field),
 				MemberType = LinkedMember.Type.Field,
 				IsStatic = true,
@@ -72,6 +101,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(property),
 				MemberType = LinkedMember.Type.Property,
 				PropertyInspection = property,
@@ -82,6 +112,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(property),
 				MemberType = LinkedMember.Type.Property,
 				IsStatic = true,
@@ -93,6 +124,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(@event),
 				MemberType = LinkedMember.Type.Event,
 				EventInspection = @event,
@@ -103,6 +135,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(@event),
 				MemberType = LinkedMember.Type.Event,
 				EventInspection = @event,
@@ -113,6 +146,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				MethodInspection = method,
@@ -123,6 +157,7 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				IsStatic = true,
@@ -134,19 +169,13 @@ public sealed class Linker : IEnumerable<LinkedMember>
 		{
 			yield return new LinkedMember()
 			{
+				Document = this.Document,
 				Info = this.Document.Find(method),
 				MemberType = LinkedMember.Type.Method,
 				IsStatic = true,
 				MethodInspection = method,
 			};
 		}
-		
-		yield return new LinkedMember()
-		{
-			Info = this.Document.Find(this.Inspection),
-			MemberType = LinkedMember.Type.Type,
-			TypeInspection = this.Inspection,
-		};
 	}
 	
 	#endregion // Public Methods

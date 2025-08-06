@@ -1,14 +1,29 @@
 
 namespace DocNET.Generators;
 
+using System.IO;
+
 public class GeneratedDocumentation
 {
+	#region Properties
+	
+	public string Content { get; set; }
+	public string FileName { get; set; }
+	public string FileExtension { get; set; }
+	
+	#endregion // Properties
+	
 	#region Public Methods
 	
-	public void Save(ProjectEnvironment environment)
+	public virtual void Save(ProjectEnvironment environment)
 	{
-		// TODO: Save the documentation to the correct location.
-		throw new System.NotImplementedException();
+		string saveFileName = Path.Combine(environment.OutputDirectory, $"{this.FileName}{this.FileExtension}");
+		
+		if(!Directory.Exists(environment.OutputDirectory))
+		{
+			Directory.CreateDirectory(environment.OutputDirectory);
+		}
+		File.WriteAllText(saveFileName, this.Content);
 	}
 	
 	#endregion // Public Methods

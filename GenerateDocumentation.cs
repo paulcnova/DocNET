@@ -3,6 +3,8 @@ namespace DocNET.Tasks;
 
 using DocNET.Generators;
 using DocNET.Inspections;
+using DocNET.Information;
+using DocNET.Linking;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -18,6 +20,7 @@ public class GenerateDocumentation : Task
 	[Required] public string AssembliesPath { get; set; }
 	[Required] public string OriginalAssembly { get; set; }
 	[Required] public string GeneratorType { get; set; }
+	[Required] public string XMLFile { get; set; }
 	public bool IncludePrivate { get; set; } = false;
 	
 	#endregion // Properties
@@ -39,21 +42,21 @@ public class GenerateDocumentation : Task
 		
 		if(generator == null) { return false; }
 		
+		InformationDocument document = new InformationDocument(this.XMLFile);
 		SiteMap siteMap = new SiteMap(environment);
 		List<string> typesToDocument = siteMap.FindTypes();
 		
 		foreach(string type in typesToDocument)
 		{
-		// 	TypeInspection inspectedType = new TypeInspection(type, environment);
-		// 	TypeInfo information = new TypeInfo(type, environment);
-		// 	Linker linker = new Linker(inspectedType, information, environment);
+			TypeInspection inspectedType = new TypeInspection(type, siteMap, environment);
+			Linker linker = new Linker(inspectedType, document, siteMap, environment);
 			
-		// 	foreach(LinkedType linkedType in linker)
-		// 	{
-		// 		GeneratedDocumentation documentation = generator.Generate(linkedType);
+			foreach(LinkedMember linkedMember in linker)
+			{
+				GeneratedDocumentation documentation = generator.Generate(linkedMember);
 				
-		// 		documentation.Save(environment);
-		// 	}
+				documentation.Save(environment);
+			}
 		}
 		
 		return true;

@@ -12,6 +12,9 @@ public sealed class SiteMap
 	
 	public ProjectEnvironment Environment { get; private set; }
 	public Dictionary<string, List<string>> Types { get; set; } = new Dictionary<string, List<string>>();
+	public Dictionary<string, string> AssemblyMap { get; set; } = new Dictionary<string, string>();
+	public Dictionary<string, AssemblyDefinition> AssemblyDefinitions { get; set; } = new Dictionary<string, AssemblyDefinition>();
+	public Dictionary<string, TypeDefinition> TypeDefinitions { get; set; } = new Dictionary<string, TypeDefinition>();
 	
 	/// <summary>A constructor that creates a site map from the given environment</summary>
 	/// <param name="environment">The environment to create a site map for</param>
@@ -28,6 +31,7 @@ public sealed class SiteMap
 			{
 				this.Types.Add(asmName, new List<string>());
 			}
+			this.AssemblyDefinitions.Add(asmName, asm);
 			
 			foreach(ModuleDefinition module in asm.Modules)
 			{
@@ -52,15 +56,19 @@ public sealed class SiteMap
 						if(nestedType.IsNotPublic) { continue; }
 					}
 					this.Types[asmName].Add(type.FullName);
-					this.Types[asmName].Sort();
+					this.TypeDefinitions.Add(type.FullName, type);
+					this.AssemblyMap.Add(type.FullName, asmName);
 				}
 			}
+			this.Types[asmName].Sort();
 		}
 	}
 	
 	#endregion // Properties
 	
 	#region Public Methods
+	
+	public AssemblyDefinition GetAssemblyDefinition(string typeName) => this.AssemblyDefinitions[this.AssemblyMap[typeName]];
 	
 	/// <summary>Finds all the types from the <c>environment</c> that is relevant to the project.</summary>
 	/// <returns>A list of all the types relevant to the project</returns>

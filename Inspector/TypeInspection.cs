@@ -6,7 +6,7 @@ using Mono.Collections.Generic;
 
 using System.Collections.Generic;
 
-public class TypeInspection
+public class TypeInspection : IXmlMember
 {
 	#region Properties
 	
@@ -56,13 +56,31 @@ public class TypeInspection
 	public QuickTypeInspection BaseType { get; set; }
 	
 	/// <summary>The array of attributes that the type contains</summary>
-	public List<AttributeInspection> Attributes { get; set; } = new List<AttributeInspection>();
+	public List<AttributeInspection> Attributes { get; private set; } = new List<AttributeInspection>();
 	
 	/// <summary>The array of type information of interfaces that the type implements</summary>
-	public List<QuickTypeInspection> Interfaces { get; set; } = new List<QuickTypeInspection>();
+	public List<QuickTypeInspection> Interfaces { get; private set; } = new List<QuickTypeInspection>();
+	
+	public List<FieldInspection> Fields { get; private set; } = new List<FieldInspection>();
+	public List<FieldInspection> StaticFields { get; private set; } = new List<FieldInspection>();
+	public List<PropertyInspection> Properties { get; private set; } = new List<PropertyInspection>();
+	public List<PropertyInspection> StaticProperties { get; private set; } = new List<PropertyInspection>();
+	public List<EventInspection> Events { get; private set; } = new List<EventInspection>();
+	public List<EventInspection> StaticEvents { get; private set; } = new List<EventInspection>();
+	public List<MethodInspection> Constructors { get; private set; } = new List<MethodInspection>();
+	public List<MethodInspection> Methods { get; private set; } = new List<MethodInspection>();
+	public List<MethodInspection> StaticMethods { get; private set; } = new List<MethodInspection>();
+	public List<MethodInspection> Operators { get; private set; } = new List<MethodInspection>();
 	
 	/// <summary>Gets if the type should be ignored since it is private</summary>
 	public bool ShouldIgnore { get; private set; } = false;
+	
+	public TypeInspection(string typeName, SiteMap map, ProjectEnvironment environment) : this(
+		map.GetAssemblyDefinition(typeName),
+		map.TypeDefinitions[typeName],
+		environment.Assemblies.ToArray(),
+		!environment.IncludePrivate
+	) {}
 	
 	public TypeInspection(AssemblyDefinition asm, TypeDefinition type, string[] assemblies, bool ignorePrivate = true)
 	{
@@ -136,11 +154,28 @@ public class TypeInspection
 				: ""
 		)}{this.Info.Name}";
 		this.FullDeclaration = this.GetFullDeclaration(type);
+		
+		// TODO: Have an option to not be recursive.
+		this.Fields = FieldInspection.CreateArray(type, true, false, ignorePrivate);
+		this.StaticFields = FieldInspection.CreateArray(type, true, true, ignorePrivate);
+		
+		this.Properties = PropertyInspection.CreateArray(type, true, false, ignorePrivate);
+		this.StaticProperties = PropertyInspection.CreateArray(type, true, true, ignorePrivate);
+		
+		this.Events = EventInspection.CreateArray(type, true, false, ignorePrivate);
+		this.StaticEvents = EventInspection.CreateArray(type, true, true, ignorePrivate);
+		
+		this.Constructors = MethodInspection.CreateArray(type, false, false, true, ignorePrivate: ignorePrivate);
+		this.Methods = MethodInspection.CreateArray(type, true, false, ignorePrivate: ignorePrivate);
+		this.StaticMethods = MethodInspection.CreateArray(type, true, true, ignorePrivate: ignorePrivate);
+		this.Operators = MethodInspection.CreateArray(type, true, true, false, true, ignorePrivate: ignorePrivate);
 	}
 	
 	#endregion // Properties
 	
 	#region Public Methods
+	
+	public string GetXmlNameID() => $"T:{this.Info.UnlocalizedName}";
 	
 	public static TypeDefinition SearchDefinition(string typePath, string[] assemblies, bool ignorePrivate = true)
 	{

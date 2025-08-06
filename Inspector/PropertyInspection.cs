@@ -7,7 +7,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to the property</summary>
-public class PropertyInspection : BaseInspection
+public class PropertyInspection : BaseInspection, IXmlMember
 {
 	#region Properties
 	
@@ -270,6 +270,24 @@ public class PropertyInspection : BaseInspection
 		}
 		
 		return results;
+	}
+	
+	public string GetXmlNameID()
+	{
+		string typePath = $"P:{this.ImplementedType.UnlocalizedName}.{this.Name}";
+		
+		if(this.Parameters.Count > 0)
+		{
+			List<string> parameters = new List<string>();
+			
+			foreach(ParameterInspection parameter in this.Parameters)
+			{
+				parameters.Add(parameter.TypeInfo.FullName);
+			}
+			
+			return $"{typePath}({string.Join(',', parameters)})";
+		}
+		return typePath;
 	}
 	
 	#endregion // Public Methods

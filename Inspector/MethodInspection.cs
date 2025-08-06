@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>All the information relevant to methods</summary>
-public partial class MethodInspection : BaseInspection
+public partial class MethodInspection : BaseInspection, IXmlMember
 {
 	#region Properties
 	
@@ -199,6 +199,76 @@ public partial class MethodInspection : BaseInspection
 		}
 		
 		return results;
+	}
+	
+	public string GetXmlNameID()
+	{
+		string name = this.Name;
+		
+		if(this.IsConstructor) { name = "#ctor"; }
+		if(this.IsConversionOperator)
+		{
+			name = this.Modifier.IndexOf("implicit") == -1
+				? "op_Explicit"
+				: "op_Implicit";
+		}
+		else if(this.IsOperator && !name.StartsWith("op_")) { name = $"op_{name}"; }
+		
+		string typePath = $"{this.ImplementedType.UnlocalizedName}.{name}";
+		List<string> parameters = new List<string>();
+		
+		if(this.GenericParameters.Count > 0)
+		{
+			typePath += $"``{this.GenericParameters.Count}";
+		}
+		
+		foreach(ParameterInspection parameter in this.Parameters)
+		{
+			string paramResult = parameter.TypeInfo.NonInstancedFullName;
+			string temp;
+			
+			for(int i = 0; i < this.ImplementedType.GenericParameters.Count; ++i)
+			{
+				temp = this.ImplementedType.GenericParameters[i].UnlocalizedName;
+				if(paramResult == temp)
+				{
+					paramResult = $"`{i}";
+					break;
+				}
+				paramResult = Regex.Replace(paramResult, @$"([\\(<,]){temp}([\\)\\[>,])", $"$1`{i}$2");
+				paramResult = Regex.Replace(paramResult, @$"{temp}((?:\\[,*\\])+)", $"`{i}$1");
+			}
+			
+			for(int i = 0; i < this.GenericParameters.Count; ++i)
+			{
+				temp = this.GenericParameters[i].UnlocalizedName;
+				if(paramResult == temp)
+				{
+					paramResult = $"``{i}";
+					break;
+				}
+				paramResult = Regex.Replace(paramResult, @$"([\\(<,]){temp}([\\)\\[>,])", $"$1``{i}$2");
+				paramResult = Regex.Replace(paramResult, @$"{temp}((?:\\[,*\\])+)", $"``{i}$1");
+			}
+			
+			paramResult = paramResult.Replace('<', '{').Replace('>', '}');
+			
+			if(parameter.Modifier != "") { paramResult += "@"; }
+			
+			parameters.Add(paramResult);
+		}
+		
+		if(parameters.Count > 0)
+		{
+			string methodPath = $"{typePath}({string.Join(',', parameters)})";
+			
+			if(this.IsConversionOperator)
+			{
+				return $"M:{methodPath}~{this.ReturnType.NonInstancedFullName}";
+			}
+			return $"M:{methodPath}";
+		}
+		return $"M:{typePath}";
 	}
 	
 	public string GetTypePath()

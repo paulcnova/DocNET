@@ -18,6 +18,8 @@ public class ProjectEnvironment
 	public required string GeneratorType { get; set; }
 	public required bool IncludePrivate { get; set; }
 	
+	public bool IgnorePrivate => !this.IncludePrivate;
+	
 	#endregion // Properties
 	
 	#region Public Methods

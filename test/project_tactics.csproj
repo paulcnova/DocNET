@@ -21,7 +21,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <NoWarn Condition="$(ShowDocErrors)!='true'">CS1591</NoWarn>
+    <NoWarn Condition="$(ShowDocErrors)!='true'">$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   

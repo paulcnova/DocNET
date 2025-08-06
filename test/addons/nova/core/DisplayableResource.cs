@@ -3,7 +3,22 @@ namespace Nova;
 
 using Godot;
 
-/// <summary>A resource meant to be displayable in-game.</summary>
+/// <inheritdoc/>
+/// <summary>
+/// A resource meant to be displayable in-game.
+/// 
+/// <list type="bullet">
+/// 	<listheader>
+/// 		<term>false</term>
+/// 		<description>true</description>
+/// 	</listheader>
+/// 	<item>
+/// 		<term>ABC</term>
+/// 		<description>HELLO</description>
+/// 	</item>
+/// 	<item>123</item>
+/// </list>
+/// </summary>
 [GlobalClass] public partial class DisplayableResource : Resource
 {
 	#region Properties

@@ -24,26 +24,22 @@ public sealed class InformationElement
 			}
 			else
 			{
-				// System.Console.WriteLine(child.Name);
 				this.Contents.Add(child.Name, this.ExtractContent(child));
 			}
 		}
-		// TODO: Contents becomes zero
-		// System.Console.WriteLine(this.Contents.Count);
-		// System.Console.WriteLine(string.Join(", ", this.Contents.Keys));
 	}
 	
 	#endregion // Properties
 	
 	#region Public Methods
 	
-	public string FlattenSummary(NodeFlattener flattener) => this.Flatten(XCD_Summary, flattener);
-	public string Flatten(string type, NodeFlattener flattener)
+	public string StringifySummary(NodeFlattener flattener) => this.Stringify(XCD_Summary, flattener);
+	public string Stringify(string type, NodeFlattener flattener)
 	{
 		switch(type)
 		{
-			default: return flattener.Flatten<XcdContentNode>(null);
-			case XCD_Summary: return flattener.Flatten(this.Summary);
+			default: return flattener.Stringify<XcdContentNode>(null);
+			case XCD_Summary: return flattener.Stringify(this.Summary);
 		}
 	}
 	

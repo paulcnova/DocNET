@@ -3,7 +3,7 @@ namespace Nova;
 
 using Godot;
 
-/// <summary>A node that can be remotely enabled or disabled.</summary>
+/// <inheritdoc/>
 [GlobalClass] public partial class ToggleableNode : Node
 {
 	#region Properties

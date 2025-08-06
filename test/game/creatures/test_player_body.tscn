@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://d2op7m01oiqfe"]
+
+[ext_resource type="Script" uid="uid://bbclnge1pk0gg" path="res://game/creatures/PlayerBody.cs" id="1_lwoln"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_oxvr6"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_x6lmx"]
+
+[sub_resource type="AnimationNodeBlendSpace2D" id="AnimationNodeBlendSpace2D_lwoln"]
+
+[node name="PlayerBody" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 2
+script = ExtResource("1_lwoln")
+metadata/_custom_type_script = "uid://bbclnge1pk0gg"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_oxvr6")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_x6lmx")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+tree_root = SubResource("AnimationNodeBlendSpace2D_lwoln")
+anim_player = NodePath("../AnimationPlayer")
+parameters/blend_position = Vector2(0, 0)

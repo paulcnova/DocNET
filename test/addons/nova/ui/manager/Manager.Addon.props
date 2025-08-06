@@ -1,0 +1,33 @@
+
+<Project>
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Nova_4_UI_MANAGER</DefineConstants>
+		<UIManagerAddonDirectory>ui/manager</UIManagerAddonDirectory>
+		<UIManagerAddonName>ui_manager</UIManagerAddonName>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<UIManagerAddonFiles Include="$(MSBuildThisFileDirectory)/**/*.*"/>
+		<UIManagerAddonFiles Remove="$(MSBuildThisFileDirectory)/**/*.ExportList.props"/>
+	</ItemGroup>
+	
+	<Target Name="CF_UI_Manager" Label="CF_UI_Manager">
+		<MakeDir Directories="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(UIManagerAddonDirectory)"/>
+		<Copy
+			SourceFiles="@(UIManagerAddonFiles)"
+			DestinationFolder="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(UIManagerAddonDirectory)/%(RecursiveDir)"
+		/>
+	</Target>
+	
+	<Target Name="Zip_UI_Manager" Label="Zip_UI_Manager">
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="CF_Core" Properties="ADDON=ui_manager"/>
+		<CallTarget Targets="CF_UI_Manager"/>
+		<ZipDirectory
+			SourceDirectory="$(MSBuildProjectDirectory)/exports/temp"
+			DestinationFile="$(MSBuildProjectDirectory)/exports/$(UIManagerAddonName)_addon.zip"
+			Overwrite="true"
+		/>
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+	</Target>
+</Project>

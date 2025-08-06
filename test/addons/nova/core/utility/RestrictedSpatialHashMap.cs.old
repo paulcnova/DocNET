@@ -1,0 +1,133 @@
+
+namespace Nova;
+
+using Godot;
+using Godot.Collections;
+
+/// <summary>A spatial hash map that restricts what spaces can be used.</summary>
+/// <typeparam name="T">The data to associate with the given space.</typeparam>
+public partial class RestrictedSpatialHashMap<[MustBeVariant] T> : SpatialHashMap<T>
+{
+	#region Properties
+	
+	/// <summary>Gets and sets the hash map of allowed spaces the hash map can use. If the space returns false, then it is not allowed. If the space does not exist, then it is not allowed.</summary>
+	[Export] public Dictionary<Vector3I, bool> AllowedLocations { get; set; } = new Dictionary<Vector3I, bool>();
+	
+	/// <summary>Gets the list of allowed local spaces that the hash map can access.</summary>
+	public Array<Vector3I> Allowed
+	{
+		get
+		{
+			Array<Vector3I> arr = new Array<Vector3I>();
+			
+			foreach(Vector3I location in this.AllowedLocations.Keys)
+			{
+				if(this.AllowedLocations[location])
+				{
+					arr.Add(location);
+				}
+			}
+			
+			return arr;
+		}
+	}
+	
+	#endregion // Properties
+	
+	#region Public Methods
+	
+	/// <summary>Gets the list of allowed local spaces that the hash map can access on the given y level.</summary>
+	/// <param name="y">The y-index to check for allowed spaces.</param>
+	/// <returns>Returns the list of allowed local spaces that the hash map can access on the given y level.</returns>
+	public virtual Array<Vector3I> GetAllowedOnYLevel(int y)
+	{
+		Array<Vector3I> arr = new Array<Vector3I>();
+		
+		foreach(Vector3I location in this.AllowedLocations.Keys)
+		{
+			if(this.AllowedLocations[location] && location.Y == y)
+			{
+				arr.Add(location);
+			}
+		}
+		
+		return arr;
+	}
+	
+	/// <inheritdoc/>
+	public override bool AddLocal(Vector3I location, T item)
+	{
+		if(!this.AllowedLocations.ContainsKey(location)) { return false; }
+		return base.AddLocal(location, item);
+	}
+	
+	/// <summary>Allows a specific space.</summary>
+	/// <param name="location">The space to allow.</param>
+	public virtual void Allow(Vector3I location)
+	{
+		if(this.AllowedLocations.ContainsKey(location))
+		{
+			this.AllowedLocations[location] = true;
+		}
+		else
+		{
+			this.AllowedLocations.Add(location, true);
+		}
+	}
+	
+	/// <summary>Allows a whole area of spaces.</summary>
+	/// <param name="area">The area of spaces to allow.</param>
+	/// <remarks>This uses the <see cref="SpatialHashMap{T}.CellSize"/> to determine all the spaces in between.</remarks>
+	public virtual void AllowArea(Aabb area)
+	{
+		Vector3I start = this.GlobalToLocal(area.Position);
+		Vector3I end = this.GlobalToLocal(area.End);
+		
+		for(int x = start.X; x <= end.X; ++x)
+		{
+			for(int y = start.Y; y <= end.Y; ++y)
+			{
+				for(int z = start.Z; z <= end.Z; ++z)
+				{
+					this.Allow(new Vector3I(x, y, z));
+				}
+			}
+		}
+	}
+	
+	/// <summary>Disallow a specific space.</summary>
+	/// <param name="location">The space to disallow.</param>
+	public virtual void Disallow(Vector3I location)
+	{
+		if(this.AllowedLocations.ContainsKey(location))
+		{
+			this.AllowedLocations[location] = false;
+		}
+		else
+		{
+			this.AllowedLocations.Add(location, false);
+		}
+	}
+	
+	/// <summary>Disallows a whole area of spaces.</summary>
+	/// <param name="area">The area of spaces to allow.</param>
+	/// <remarks>This uses the <see cref="SpatialHashMap{T}.CellSize"/> to determine all the spaces in between.</remarks>
+	public virtual void DisallowArea(Aabb area)
+	{
+		Vector3I start = this.GlobalToLocal(area.Position);
+		Vector3I end = this.GlobalToLocal(area.End);
+		
+		for(int x = start.X; x <= end.X; ++x)
+		{
+			for(int y = start.Y; y <= end.Y; ++y)
+			{
+				for(int z = start.Z; z <= end.Z; ++z)
+				{
+					this.Disallow(new Vector3I(x, y, z));
+				}
+			}
+		}
+	}
+	
+	#endregion // Public Methods
+}

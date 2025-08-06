@@ -1,0 +1,32 @@
+
+<Project>
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Nova_4_Core</DefineConstants>
+		<CoreAddonDirectory>core</CoreAddonDirectory>
+		<CoreAddonName>core</CoreAddonName>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<CoreAddonFiles Include="$(MSBuildThisFileDirectory)/**/*.*"/>
+		<CoreAddonFiles Remove="$(MSBuildThisFileDirectory)/**/*.ExportList.props"/>
+	</ItemGroup>
+	
+	<Target Name="CF_Core" Label="CF_Core">
+		<MakeDir Directories="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(CoreAddonDirectory)"/>
+		<Copy
+			SourceFiles="@(CoreAddonFiles)"
+			DestinationFolder="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(CoreAddonDirectory)/%(RecursiveDir)"
+		/>
+	</Target>
+	
+	<Target Name="Zip_Core" Label="Zip_Core">
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+		<CallTarget Targets="CF_Core"/>
+		<ZipDirectory
+			SourceDirectory="$(MSBuildProjectDirectory)/exports/temp"
+			DestinationFile="$(MSBuildProjectDirectory)/exports/$(CoreAddonName)_addon.zip"
+			Overwrite="true"
+		/>
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+	</Target>
+</Project>

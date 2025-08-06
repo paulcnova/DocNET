@@ -1,0 +1,33 @@
+
+<Project>
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Nova_4_Tooltips</DefineConstants>
+		<TooltipsAddonDirectory>ui/tooltips</TooltipsAddonDirectory>
+		<TooltipsAddonName>tooltips</TooltipsAddonName>
+	</PropertyGroup>
+	
+	<Target Name="CF_Tooltips" Label="CF_Tooltips">
+		<ItemGroup>
+			<TooltipsAddonFiles Include="$(MSBuildThisFileDirectory)/**/*.*"/>
+			<TooltipsAddonFiles Remove="$(MSBuildThisFileDirectory)/**/*.ExportList.props"/>
+		</ItemGroup>
+		
+		<MakeDir Directories="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(TooltipsAddonDirectory)"/>
+		<Copy
+			SourceFiles="@(TooltipsAddonFiles)"
+			DestinationFolder="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(TooltipsAddonDirectory)/%(RecursiveDir)"
+		/>
+	</Target>
+	
+	<Target Name="Zip_Tooltips" Label="Zip_Tooltips">
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="CF_Core" Properties="ADDON=tooltips"/>
+		<CallTarget Targets="CF_Tooltips"/>
+		<ZipDirectory
+			SourceDirectory="$(MSBuildProjectDirectory)/exports/temp"
+			DestinationFile="$(MSBuildProjectDirectory)/exports/$(TooltipsAddonName)_addon.zip"
+			Overwrite="true"
+		/>
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+	</Target>
+</Project>

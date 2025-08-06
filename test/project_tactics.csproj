@@ -1,0 +1,44 @@
+<Project Sdk="Godot.NET.Sdk/4.4.0">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <NoWarn>
+      IDE0001;
+      IDE0002;
+      IDE0003;
+      IDE0017;
+      IDE0028;
+      IDE0044;
+      IDE0056;
+      IDE0057;
+      IDE0060;
+      IDE0066;
+      IDE0090;
+      IDE0130;
+      CA1822;
+      CA1854;
+    </NoWarn>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <NoWarn Condition="$(ShowDocErrors)!='true'">CS1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  
+  <UsingTask TaskName="GenerateDocumentation" AssemblyFile="../bin/Debug/net8.0/DocNET.dll" Override="True" />
+  <Target Name="TEST" AfterTargets="Build">
+    <PropertyGroup>
+      <AssemblyDirectory>$(OutDir)</AssemblyDirectory>
+      <OriginalAssembly>$(AssemblyName).dll</OriginalAssembly>
+    </PropertyGroup>
+    <GenerateDocumentation
+      AssembliesPath="$(AssemblyDirectory)"
+      OriginalAssembly="$(OriginalAssembly)"
+      ProjectName="$(MSBuildProjectName)"
+      GeneratorType="generator/static_html"
+      OutputDirectory="$(OutDir)\docs\"
+      XMLFile="$(OutDir)\$(MSBuildProjectName).xml"
+    />
+  </Target>
+  
+</Project>

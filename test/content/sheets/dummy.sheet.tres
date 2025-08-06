@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="DummySheet" load_steps=2 format=3 uid="uid://c1wcd72n86mp1"]
+
+[ext_resource type="Script" uid="uid://b6l3vdh7dbc5m" path="res://content/DummySheet.cs" id="1_dn0fa"]
+
+[resource]
+script = ExtResource("1_dn0fa")
+MaxHealth = 0
+AttributeBoosts = Array[int]([])
+AttributeFlaws = Array[int]([])
+Traits = Array[String]([])
+OverrideStrengthModifier = false
+StrengthModifierOverrideValue = 0
+OverrideDexterityModifier = false
+DexterityModifierOverrideValue = 0
+OverrideConstitutionModifier = false
+ConstitutionModifierOverrideValue = 0
+OverrideIntelligenceModifier = false
+IntelligenceModifierOverrideValue = 0
+OverrideWisdomModifier = false
+WisdomModifierOverrideValue = 0
+OverrideCharismaModifier = false
+CharismaModifierOverrideValue = 0
+IsFinished = false
+Name = "?Player Name?"
+Description = ""
+ExpansionID = "player_core"
+ID = "sheet_dummy"
+TooltipID = ""
+TooltipCategory = ""
+RecommendedTooltipWidth = -1
+RecommendedTooltipHeight = -1
+OverrideTooltipCategory = ""
+metadata/_custom_type_script = "uid://b6l3vdh7dbc5m"

@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://bhgbivjwcj6t"]
+
+[ext_resource type="Script" uid="uid://dnnrg2l7od861" path="res://game/controls/features/MovementACF.cs" id="1_1418d"]
+[ext_resource type="Material" uid="uid://dq7xvgbmut4b4" path="res://addons/nova/prototyping/green/prototype_green_09.material" id="2_phohk"]
+[ext_resource type="Material" uid="uid://bpmmq4wcoapj" path="res://addons/nova/prototyping/red/prototype_red_09.material" id="3_u8nj5"]
+
+[sub_resource type="Curve3D" id="Curve3D_hfou0"]
+
+[node name="MovementACF" type="Node3D" node_paths=PackedStringArray("Path", "Mesh")]
+script = ExtResource("1_1418d")
+Path = NodePath("MovementPath")
+Mesh = NodePath("PathMesh")
+GoodMaterial = ExtResource("2_phohk")
+BadMaterial = ExtResource("3_u8nj5")
+metadata/_custom_type_script = "uid://dnnrg2l7od861"
+
+[node name="MovementPath" type="Path3D" parent="."]
+curve = SubResource("Curve3D_hfou0")
+
+[node name="PathMesh" type="CSGPolygon3D" parent="."]
+polygon = PackedVector2Array(0, 0, 0, 0.05, 0.25, 0.05, 0.25, 0)
+mode = 2
+path_node = NodePath("../MovementPath")
+path_interval_type = 0
+path_interval = 0.12
+path_simplify_angle = 0.0
+path_rotation = 1
+path_rotation_accurate = false
+path_local = false
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false

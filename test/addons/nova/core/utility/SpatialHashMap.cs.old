@@ -1,0 +1,105 @@
+
+namespace Nova;
+
+using Godot;
+using Godot.Collections;
+
+/// <summary>A hashmap that maps a point in space (<see cref="Godot.Vector3"/>) to data.</summary>
+/// <typeparam name="T">The type of data to store in the hash map.</typeparam>
+public partial class SpatialHashMap<[MustBeVariant] T> : Resource
+{
+	#region Properties
+	
+	/// <summary>Gets and sets the size of the cell to map the space from.</summary>
+	[Export] public Vector3 CellSize { get; set; } = Vector3.One;
+	
+	/// <summary>Gets and sets the actual hash map.</summary>
+	[Export] public Dictionary<Vector3I, T> HashMap { get; set; } = new Dictionary<Vector3I, T>();
+	
+	/// <summary>Gets the amount of items within the hash map.</summary>
+	public int Count => this.HashMap.Count;
+	
+	/// <summary>Gets the array of all the mapped locations.</summary>
+	public Array<Vector3I> MappedLocations
+	{
+		get
+		{
+			Array<Vector3I> locations = new Array<Vector3I>();
+			
+			foreach(Vector3I location in this.HashMap.Keys)
+			{
+				locations.Add(location);
+			}
+			
+			return locations;
+		}
+	}
+	
+	/// <summary>Gets and sets the items within the spatial hash map.</summary>
+	public T this[Vector3I location]
+	{
+		get
+		{
+			if(!this.HashMap.ContainsKey(location)) { return default(T); }
+			return this.HashMap[location];
+		}
+		set
+		{
+			if(this.HashMap.ContainsKey(location))
+			{
+				this.HashMap[location] = value;
+			}
+			else
+			{
+				this.AddLocal(location, value);
+			}
+		}
+	}
+	
+	#endregion // Properties
+	
+	#region Public Methods
+	
+	/// <summary>Converts the global space into local space.</summary>
+	/// <param name="location">The point in global space.</param>
+	/// <returns>Returns the point in local space pointing to a specific location in the hash map.</returns>
+	public virtual Vector3I GlobalToLocal(Vector3 location)
+	{
+		return new Vector3I(
+			(int)(location.X / this.CellSize.X),
+			(int)(location.Y / this.CellSize.Y),
+			(int)(location.Z / this.CellSize.Z)
+		);
+	}
+	
+	/// <summary>Converts the local space into global space.</summary>
+	/// <param name="location">The point in local space.</param>
+	/// <returns>Returns the point in global space.</returns>
+	public virtual Vector3 LocalToGlobal(Vector3I location)
+	{
+		return new Vector3(
+			location.X * this.CellSize.X,
+			location.Y * this.CellSize.Y,
+			location.Z * this.CellSize.Z
+		);
+	}
+	
+	/// <summary>Adds a data point using the global space.</summary>
+	/// <param name="location">The point in global space.</param>
+	/// <param name="data">The data to store.</param>
+	/// <returns>Returns true if the data point was stored successfully.</returns>
+	public virtual bool AddGlobal(Vector3 location, T data) => this.AddLocal(this.GlobalToLocal(location), data);
+	
+	/// <summary>Adds a data point using the local space.</summary>
+	/// <param name="location">The point in local space.</param>
+	/// <param name="data">The data to store.</param>
+	/// <returns>Returns true if the data point was stored successfully.</returns>
+	public virtual bool AddLocal(Vector3I location, T data)
+	{
+		if(this.HashMap.ContainsKey(location)) { return false; }
+		this.HashMap.Add(location, data);
+		return true;
+	}
+	
+	#endregion // Public Methods
+}

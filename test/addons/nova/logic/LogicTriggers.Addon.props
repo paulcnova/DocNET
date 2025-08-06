@@ -1,0 +1,33 @@
+
+<Project>
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Nova_4_LOGIC_TRIGGERS</DefineConstants>
+		<LogicTriggerAddonDirectory>logic</LogicTriggerAddonDirectory>
+		<LogicTriggerAddonName>logic_triggers</LogicTriggerAddonName>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<LogicTriggerAddonFiles Include="$(MSBuildThisFileDirectory)/**/*.*"/>
+		<LogicTriggerAddonFiles Remove="$(MSBuildThisFileDirectory)/**/*.ExportList.props"/>
+	</ItemGroup>
+	
+	<Target Name="CF_Logic_Triggers" Label="CF_Logic_Triggers">
+		<MakeDir Directories="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(LogicTriggerAddonDirectory)"/>
+		<Copy
+			SourceFiles="@(LogicTriggerAddonFiles)"
+			DestinationFolder="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(LogicTriggerAddonDirectory)/%(RecursiveDir)"
+		/>
+	</Target>
+	
+	<Target Name="Zip_Logic_Triggers" Label="Zip_Logic_Triggers">
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="CF_Core" Properties="ADDON=logic_trigger"/>
+		<CallTarget Targets="CF_Logic_Triggers"/>
+		<ZipDirectory
+			SourceDirectory="$(MSBuildProjectDirectory)/exports/temp"
+			DestinationFile="$(MSBuildProjectDirectory)/exports/$(LogicTriggerAddonName)_addon.zip"
+			Overwrite="true"
+		/>
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+	</Target>
+</Project>

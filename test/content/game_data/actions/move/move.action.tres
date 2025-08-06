@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="ActionData" load_steps=6 format=3 uid="uid://3vvawwmg7usn"]
+
+[ext_resource type="Script" uid="uid://dkgdikgdwm3kx" path="res://content/game_data/actions/ActionStage.cs" id="1_io8mn"]
+[ext_resource type="Script" uid="uid://ctfkdupqjhtoo" path="res://content/game_data/actions/move/MoveActionStage.cs" id="2_io8mn"]
+[ext_resource type="Script" uid="uid://c06fjjr4qjtaf" path="res://content/game_data/actions/ActionData.cs" id="3_e5loh"]
+
+[sub_resource type="Resource" id="Resource_io8mn"]
+script = ExtResource("2_io8mn")
+Name = ""
+FeaturesToEnable = Array[String]([])
+metadata/_custom_type_script = "uid://ctfkdupqjhtoo"
+
+[sub_resource type="Resource" id="Resource_qqq3c"]
+script = ExtResource("1_io8mn")
+Name = "ABC"
+FeaturesToEnable = Array[String](["RangeACF", "MovementACF"])
+metadata/_custom_type_script = "uid://dkgdikgdwm3kx"
+
+[resource]
+script = ExtResource("3_e5loh")
+Stages = Array[ExtResource("1_io8mn")]([SubResource("Resource_io8mn"), SubResource("Resource_qqq3c")])
+IsFinished = false
+Name = ""
+Description = ""
+ExpansionID = ""
+ID = ""
+TooltipID = ""
+TooltipCategory = ""
+RecommendedTooltipWidth = -1
+RecommendedTooltipHeight = -1
+OverrideTooltipCategory = ""
+metadata/_custom_type_script = "uid://c06fjjr4qjtaf"
+metadata/min_range = 10.0
+metadata/max_range = "@SB.LandSpeed * 0.25"
+metadata/min_range_1 = 0.0
+metadata/max_range_1 = "@SB.LandSpeed * 1.5"

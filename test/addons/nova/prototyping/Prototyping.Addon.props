@@ -1,0 +1,33 @@
+
+<Project>
+	<PropertyGroup>
+		<DefineConstants>$(DefineConstants);Nova_4_Prototyping</DefineConstants>
+		<PrototypingAddonDirectory>prototyping</PrototypingAddonDirectory>
+		<PrototypingAddonName>prototyping</PrototypingAddonName>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<PrototypingAddonFiles Include="$(MSBuildThisFileDirectory)/**/*.*"/>
+		<PrototypingAddonFiles Remove="$(MSBuildThisFileDirectory)/**/*.ExportList.props"/>
+	</ItemGroup>
+	
+	<Target Name="CF_Prototyping" Label="CF_Prototyping">
+		<MakeDir Directories="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(PrototypingAddonDirectory)"/>
+		<Copy
+			SourceFiles="@(PrototypingAddonFiles)"
+			DestinationFolder="$(MSBuildProjectDirectory)/exports/temp/addons/nova/$(PrototypingAddonDirectory)/%(RecursiveDir)"
+		/>
+	</Target>
+	
+	<Target Name="Zip_Prototyping" Label="Zip_Prototyping">
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+		<!-- <MSBuild Projects="$(MSBuildProjectFile)" Targets="CF_Core" Properties="ADDON=Prototyping"/> -->
+		<CallTarget Targets="CF_Prototyping"/>
+		<ZipDirectory
+			SourceDirectory="$(MSBuildProjectDirectory)/exports/temp"
+			DestinationFile="$(MSBuildProjectDirectory)/exports/$(PrototypingAddonName)_addon.zip"
+			Overwrite="true"
+		/>
+		<RemoveDir Directories="$(MSBuildProjectDirectory)/exports/temp"/>
+	</Target>
+</Project>

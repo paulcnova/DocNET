@@ -1,0 +1,111 @@
+[gd_scene load_steps=13 format=3 uid="uid://bywv3fqrof4c4"]
+
+[ext_resource type="PackedScene" uid="uid://cr4h3ycwylrjo" path="res://game/maps/test_map_playground.tscn" id="1_e7mys"]
+[ext_resource type="PackedScene" uid="uid://u1ndyh3e25vg" path="res://game/controls/features/range.acf.tscn" id="4_hfou0"]
+[ext_resource type="Script" uid="uid://dantf5juoqg0m" path="res://game/controls/ActionController.cs" id="5_48w40"]
+[ext_resource type="PackedScene" uid="uid://d2op7m01oiqfe" path="res://game/creatures/test_player_body.tscn" id="5_hfou0"]
+[ext_resource type="PackedScene" uid="uid://bhgbivjwcj6t" path="res://game/controls/features/movement.acf.tscn" id="5_oxvr6"]
+[ext_resource type="Script" uid="uid://b6l3vdh7dbc5m" path="res://content/DummySheet.cs" id="8_10l1y"]
+[ext_resource type="Script" uid="uid://b5vw2u4n0f7ew" path="res://addons/nova/core/utility/Camera3DRig.cs" id="8_oxvr6"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_48w40"]
+sky_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+ground_horizon_color = Color(0.662243, 0.671743, 0.686743, 1)
+
+[sub_resource type="Sky" id="Sky_gqg63"]
+sky_material = SubResource("ProceduralSkyMaterial_48w40")
+
+[sub_resource type="Environment" id="Environment_hfou0"]
+background_mode = 2
+sky = SubResource("Sky_gqg63")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_oxvr6"]
+
+[sub_resource type="Resource" id="Resource_lwvfx"]
+script = ExtResource("8_10l1y")
+MaxHealth = 0
+AttributeBoosts = Array[int]([])
+AttributeFlaws = Array[int]([])
+Traits = Array[String]([])
+OverrideStrengthModifier = false
+StrengthModifierOverrideValue = 0
+OverrideDexterityModifier = false
+DexterityModifierOverrideValue = 0
+OverrideConstitutionModifier = false
+ConstitutionModifierOverrideValue = 0
+OverrideIntelligenceModifier = false
+IntelligenceModifierOverrideValue = 0
+OverrideWisdomModifier = false
+WisdomModifierOverrideValue = 0
+OverrideCharismaModifier = false
+CharismaModifierOverrideValue = 0
+LandSpeed = 25
+IsFinished = false
+Name = ""
+Description = ""
+ExpansionID = ""
+ID = ""
+TooltipID = ""
+TooltipCategory = ""
+RecommendedTooltipWidth = -1
+RecommendedTooltipHeight = -1
+OverrideTooltipCategory = ""
+metadata/_custom_type_script = "uid://b6l3vdh7dbc5m"
+
+[node name="Test Player" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_hfou0")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866023, -0.433016, 0.250001, 0, 0.499998, 0.866027, -0.500003, 0.749999, -0.43301, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Playground" parent="." instance=ExtResource("1_e7mys")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.1841, 0, -5.54569)
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.4602, 0, 0.887815, 0, 1, 0, -0.887815, 0, 0.4602, -0.9204, 3.5, 1.77563)
+
+[node name="ActionController" type="Node" parent="." node_paths=PackedStringArray("Camera", "CameraRig", "Body")]
+script = ExtResource("5_48w40")
+Camera = NodePath("../Camera3D")
+CameraRig = NodePath("Camera3DRig")
+Body = NodePath("../PlayerBody")
+metadata/_custom_type_script = "uid://dantf5juoqg0m"
+
+[node name="Camera3DRig" type="Node" parent="ActionController" node_paths=PackedStringArray("Base", "Target", "CameraPoint", "FocusPoint")]
+script = ExtResource("8_oxvr6")
+Delay = 4.0
+Base = NodePath("Base")
+Target = NodePath("../../PlayerBody")
+CameraPoint = NodePath("Base/RemoteTransform3D")
+FocusPoint = NodePath("Base/Focus")
+metadata/_custom_type_script = "uid://b5vw2u4n0f7ew"
+
+[node name="Base" type="CharacterBody3D" parent="ActionController/Camera3DRig"]
+transform = Transform3D(0.4602, 0, 0.887815, 0, 1, 0, -0.887815, 0, 0.4602, 0, 0, 0)
+input_ray_pickable = false
+platform_floor_layers = 1
+
+[node name="RemoteTransform3D" type="RemoteTransform3D" parent="ActionController/Camera3DRig/Base"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 3.5, 0)
+remote_path = NodePath("../../../../Camera3D")
+
+[node name="Focus" type="Node3D" parent="ActionController/Camera3DRig/Base"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ActionController/Camera3DRig/Base"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+shape = SubResource("SphereShape3D_oxvr6")
+debug_color = Color(1, 0.517647, 0.282353, 0.419608)
+
+[node name="RangeACF" parent="ActionController" instance=ExtResource("4_hfou0")]
+
+[node name="MovementACF" parent="ActionController" instance=ExtResource("5_oxvr6")]
+
+[node name="PlayerBody" parent="." instance=ExtResource("5_hfou0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.3789, 0, 0.65296)
+Sheet = SubResource("Resource_lwvfx")

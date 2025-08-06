@@ -37,8 +37,9 @@ public sealed class InformationDocument
 		return document;
 	}
 	
-	public InformationElement Find(IXmlMember member)
-		=> this.Contents.TryGetValue(member.GetXmlNameID(), out InformationElement elem)
+	public InformationElement Find(IXmlMember member) => this.Find(member.GetXmlNameID());
+	public InformationElement Find(string id)
+		=> this.Contents.TryGetValue(id, out InformationElement elem)
 			? elem
 			: null;
 	

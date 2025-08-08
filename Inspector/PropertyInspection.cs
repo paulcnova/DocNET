@@ -290,6 +290,23 @@ public class PropertyInspection : BaseInspection
 		return typePath;
 	}
 	
+	public override BaseInspection GetBaseVersion(SiteMap siteMap)
+	{
+		TypeInspection baseType = siteMap.TryGetBaseInspection(this.ImplementedType.UnlocalizedName);
+		
+		return baseType.AllProperties.Find(property => {
+			if(property.Name != this.Name) { return false; }
+			foreach(ParameterInspection parameter in property.Parameters)
+			{
+				if(this.Parameters.FindIndex(p => p.TypeInfo.FullName == parameter.TypeInfo.FullName) == -1)
+				{
+					return false;
+				}
+			}
+			return true;
+		});
+	}
+	
 	#endregion // Public Methods
 	
 	#region Private Methods

@@ -161,6 +161,15 @@ public class FieldInspection : BaseInspection
 	
 	public override string GetXmlNameID() => $"F:{this.ImplementedType.UnlocalizedName}.{this.Name}";
 	
+	public override BaseInspection GetBaseVersion(SiteMap siteMap)
+	{
+		TypeInspection baseType = siteMap.TryGetBaseInspection(this.ImplementedType.UnlocalizedName);
+		
+		return this.IsStatic
+			? baseType.StaticFields.Find(field => field.Name == this.Name)
+			: baseType.Fields.Find(field => field.Name == this.Name);
+	}
+	
 	#endregion // Public Methods
 	
 	#region Private Methods

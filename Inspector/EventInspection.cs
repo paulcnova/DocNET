@@ -140,6 +140,15 @@ public class EventInspection : BaseInspection
 	
 	public override string GetXmlNameID() => $"E:{this.ImplementedType.UnlocalizedName}.{this.Name}";
 	
+	public override BaseInspection GetBaseVersion(SiteMap siteMap)
+	{
+		TypeInspection baseType = siteMap.TryGetBaseInspection(this.ImplementedType.UnlocalizedName);
+		
+		return this.IsStatic
+			? baseType.StaticEvents.Find(ev => ev.Name == this.Name)
+			: baseType.Events.Find(ev => ev.Name == this.Name);
+	}
+	
 	#endregion // Public Methods
 	
 	#region Private Methods

@@ -17,6 +17,7 @@ public sealed class SiteMap
 	public Dictionary<string, string> AssemblyMap { get; set; } = new Dictionary<string, string>();
 	public Dictionary<string, AssemblyDefinition> AssemblyDefinitions { get; set; } = new Dictionary<string, AssemblyDefinition>();
 	public Dictionary<string, TypeDefinition> TypeDefinitions { get; set; } = new Dictionary<string, TypeDefinition>();
+	public Dictionary<string, TypeInspection> TypeInspections { get; set; } = new Dictionary<string, TypeInspection>();
 	
 	/// <summary>A constructor that creates a site map from the given environment</summary>
 	/// <param name="environment">The environment to create a site map for</param>
@@ -86,6 +87,22 @@ public sealed class SiteMap
 	#region Public Methods
 	
 	public AssemblyDefinition GetAssemblyDefinition(string typeName) => this.AssemblyDefinitions[this.AssemblyMap[typeName]];
+	
+	public TypeInspection TryGetInspection(string fullName)
+	{
+		if(!this.TypeInspections.ContainsKey(fullName)) { return null; }
+		return this.TypeInspections[fullName];
+	}
+	
+	public TypeInspection TryGetBaseInspection(string fullName)
+	{
+		TypeInspection type = this.TryGetInspection(fullName);
+		
+		if(type == null) { return null; }
+		if(type.BaseType == null || string.IsNullOrEmpty(type.BaseType.FullName)) { return null; }
+		
+		return this.TryGetInspection(type.BaseType.FullName);
+	}
 	
 	/// <summary>Finds all the types from the <c>environment</c> that is relevant to the project.</summary>
 	/// <returns>A list of all the types relevant to the project</returns>

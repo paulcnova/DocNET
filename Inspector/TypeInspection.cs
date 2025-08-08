@@ -72,6 +72,34 @@ public class TypeInspection : BaseInspection
 	public List<MethodInspection> StaticMethods { get; private set; } = new List<MethodInspection>();
 	public List<MethodInspection> Operators { get; private set; } = new List<MethodInspection>();
 	
+	public List<PropertyInspection> AllProperties
+	{
+		get
+		{
+			List<PropertyInspection> inspections = new List<PropertyInspection>();
+			
+			inspections.AddRange(this.Properties);
+			inspections.AddRange(this.StaticProperties);
+			
+			return inspections;
+		}
+	}
+	
+	public List<MethodInspection> AllMethods
+	{
+		get
+		{
+			List<MethodInspection> inspections = new List<MethodInspection>();
+			
+			inspections.AddRange(this.Constructors);
+			inspections.AddRange(this.Methods);
+			inspections.AddRange(this.StaticMethods);
+			inspections.AddRange(this.Operators);
+			
+			return inspections;
+		}
+	}
+	
 	/// <summary>Gets if the type should be ignored since it is private</summary>
 	public bool ShouldIgnore { get; private set; } = false;
 	
@@ -176,6 +204,10 @@ public class TypeInspection : BaseInspection
 	#region Public Methods
 	
 	public override string GetXmlNameID() => $"T:{this.Info.UnlocalizedName}";
+	public override TypeInspection GetBaseVersion(SiteMap siteMap)
+		=> this.BaseType != null && !string.IsNullOrEmpty(this.BaseType.UnlocalizedName)
+			? siteMap.TryGetInspection(this.BaseType.UnlocalizedName)
+			: null;
 	
 	public static TypeDefinition SearchDefinition(string typePath, string[] assemblies, bool ignorePrivate = true)
 	{

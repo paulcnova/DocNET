@@ -7,6 +7,7 @@ public abstract class BaseInspection : System.IComparable
 	#region Public Methods
 	
 	public abstract string GetXmlNameID();
+	public abstract BaseInspection GetBaseVersion(SiteMap siteMap);
 	
 	/// <summary>Compares the info with other infos for sorting</summary>
 	/// <param name="other">The other object to look into</param>

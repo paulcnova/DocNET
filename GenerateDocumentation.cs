@@ -11,6 +11,7 @@ using Microsoft.Build.Utilities;
 
 using System.Collections.Generic;
 using System.IO;
+using System.Text.RegularExpressions;
 
 public class GenerateDocumentation : Task
 {
@@ -55,6 +56,13 @@ public class GenerateDocumentation : Task
 		foreach(string type in typesToDocument)
 		{
 			TypeInspection inspectedType = new TypeInspection(type, siteMap, environment);
+			
+			siteMap.TypeInspections.Add(type, inspectedType);
+		}
+		
+		foreach(string type in typesToDocument)
+		{
+			TypeInspection inspectedType = siteMap.TypeInspections[type];
 			Linker linker = new Linker(inspectedType, document, siteMap, environment);
 			
 			foreach(LinkedMember linkedMember in linker)

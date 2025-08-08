@@ -201,6 +201,23 @@ public partial class MethodInspection : BaseInspection
 		return results;
 	}
 	
+	public override BaseInspection GetBaseVersion(SiteMap siteMap)
+	{
+		TypeInspection baseType = siteMap.TryGetBaseInspection(this.ImplementedType.UnlocalizedName);
+		
+		return baseType.AllMethods.Find(method => {
+			if(method.Name != this.Name) { return false; }
+			foreach(ParameterInspection parameter in method.Parameters)
+			{
+				if(this.Parameters.FindIndex(p => p.TypeInfo.FullName == parameter.TypeInfo.FullName) == -1)
+				{
+					return false;
+				}
+			}
+			return true;
+		});
+	}
+	
 	public override string GetXmlNameID()
 	{
 		string name = this.Name;

@@ -25,6 +25,15 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   
+  <Target Name="_ResolveCopyLocalNugetPackageXmls" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths
+        Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')"
+        Condition="Exists('%(RootDir)%(Directory)%(Filename).xml')"
+      />
+    </ItemGroup>
+  </Target>
+  
   <UsingTask TaskName="GenerateDocumentation" AssemblyFile="../bin/Debug/net8.0/DocNET.dll" Override="True" />
   <Target Name="TEST" AfterTargets="Build">
     <PropertyGroup>

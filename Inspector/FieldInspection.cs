@@ -7,7 +7,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to fields</summary>
-public class FieldInspection : BaseInspection, IXmlMember
+public class FieldInspection : BaseInspection
 {
 	#region Properties
 	
@@ -159,7 +159,7 @@ public class FieldInspection : BaseInspection, IXmlMember
 		return results;
 	}
 	
-	public string GetXmlNameID() => $"F:{this.ImplementedType.UnlocalizedName}.{this.Name}";
+	public override string GetXmlNameID() => $"F:{this.ImplementedType.UnlocalizedName}.{this.Name}";
 	
 	#endregion // Public Methods
 	

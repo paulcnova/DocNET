@@ -7,7 +7,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to the property</summary>
-public class PropertyInspection : BaseInspection, IXmlMember
+public class PropertyInspection : BaseInspection
 {
 	#region Properties
 	
@@ -272,7 +272,7 @@ public class PropertyInspection : BaseInspection, IXmlMember
 		return results;
 	}
 	
-	public string GetXmlNameID()
+	public override string GetXmlNameID()
 	{
 		string typePath = $"P:{this.ImplementedType.UnlocalizedName}.{this.Name}";
 		

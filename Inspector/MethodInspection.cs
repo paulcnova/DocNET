@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 /// <summary>All the information relevant to methods</summary>
-public partial class MethodInspection : BaseInspection, IXmlMember
+public partial class MethodInspection : BaseInspection
 {
 	#region Properties
 	
@@ -201,7 +201,7 @@ public partial class MethodInspection : BaseInspection, IXmlMember
 		return results;
 	}
 	
-	public string GetXmlNameID()
+	public override string GetXmlNameID()
 	{
 		string name = this.Name;
 		

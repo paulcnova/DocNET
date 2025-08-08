@@ -6,11 +6,17 @@ public abstract class BaseInspection : System.IComparable
 {
 	#region Public Methods
 	
+	public abstract string GetXmlNameID();
+	
 	/// <summary>Compares the info with other infos for sorting</summary>
 	/// <param name="other">The other object to look into</param>
 	/// <returns>Returns a number that finds if it should be shifted or not (-1 and 0 for no shift; 1 for shift)</returns>
 	public int CompareTo(object other)
 	{
+		if(other is TypeInspection)
+		{
+			return (this as TypeInspection).Info.Name.CompareTo((other as TypeInspection).Info.Name);
+		}
 		if(other is FieldInspection)
 		{
 			return (this as FieldInspection).Name.CompareTo((other as FieldInspection).Name);

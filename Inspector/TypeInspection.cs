@@ -6,7 +6,7 @@ using Mono.Collections.Generic;
 
 using System.Collections.Generic;
 
-public class TypeInspection : IXmlMember
+public class TypeInspection : BaseInspection
 {
 	#region Properties
 	
@@ -175,7 +175,7 @@ public class TypeInspection : IXmlMember
 	
 	#region Public Methods
 	
-	public string GetXmlNameID() => $"T:{this.Info.UnlocalizedName}";
+	public override string GetXmlNameID() => $"T:{this.Info.UnlocalizedName}";
 	
 	public static TypeDefinition SearchDefinition(string typePath, string[] assemblies, bool ignorePrivate = true)
 	{

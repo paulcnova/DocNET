@@ -7,7 +7,7 @@ using Mono.Collections.Generic;
 using System.Collections.Generic;
 
 /// <summary>All the information relevant to events</summary>
-public class EventInspection : BaseInspection, IXmlMember
+public class EventInspection : BaseInspection
 {
 	#region Properties
 	
@@ -138,7 +138,7 @@ public class EventInspection : BaseInspection, IXmlMember
 		return results;
 	}
 	
-	public string GetXmlNameID() => $"E:{this.ImplementedType.UnlocalizedName}.{this.Name}";
+	public override string GetXmlNameID() => $"E:{this.ImplementedType.UnlocalizedName}.{this.Name}";
 	
 	#endregion // Public Methods
 	
